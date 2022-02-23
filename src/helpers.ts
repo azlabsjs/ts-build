@@ -77,9 +77,13 @@ export async function normalizeOpts(
 
 export function writeEntryFile() {
   const contents = `
-  'use strict'
+'use strict'
+if (process.env.NODE_ENV === 'production') {
+  module.exports = require('./cjs/index.min.js')
+}else {
   module.exports = require('./cjs/index.js')
-  `;
+}
+`;
   return new Promise((__, reject) => {
     // Create directory if not exist
     if (!fs.existsSync(appDist)) {

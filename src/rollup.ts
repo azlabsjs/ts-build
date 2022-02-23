@@ -9,11 +9,19 @@ import sourceMaps from 'rollup-plugin-sourcemaps';
 import typescript from 'rollup-plugin-typescript2';
 import ts from 'typescript';
 import { babelPlugin } from './rollup-plugin-config-helpers';
+import replace from '@rollup/plugin-replace';
 
 const shebang: { [index: string]: any } = {};
 
 export async function createRollupConfig(opts: BuildOptions, index: number) {
-  const outputName = [`${appDist}/${opts.format}/index`, 'js']
+  const shouldMinify =
+    opts.minify !== undefined ? opts.minify : opts.env === 'production';
+  const outputName = [
+    `${appDist}/${opts.format}/index`,
+    shouldMinify ? 'min' : '',
+    ,
+    'js',
+  ]
     .filter(Boolean)
     .join('.');
 
@@ -130,25 +138,33 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
         extensions: [...DEFAULT_BABEL_EXTENSIONS, 'ts'],
         babelHelpers: 'bundled',
       }),
+      opts.env !== undefined
+        ? replace({
+            'process.env.NODE_ENV': JSON.stringify(opts.env),
+            preventAssignment: true
+          })
+        : undefined,
       sourceMaps(),
-      terser({
-        output: {
-          comments: (_, comment) => {
-            const text = comment.value;
-            const type = comment.type;
-            return type == 'comment2'
-              ? /@preserve|@license|@cc_on/i.test(text)
-              : false;
-          },
-        },
-        compress: {
-          keep_infinity: true,
-          pure_getters: true,
-          passes: 10,
-        },
-        ecma: 5,
-        toplevel: opts.format === 'cjs',
-      }),
-    ],
+      shouldMinify
+        ? terser({
+            output: {
+              comments: (_, comment) => {
+                const text = comment.value;
+                const type = comment.type;
+                return type == 'comment2'
+                  ? /@preserve|@license|@cc_on/i.test(text)
+                  : false;
+              },
+            },
+            compress: {
+              keep_infinity: true,
+              pure_getters: true,
+              passes: 10,
+            },
+            ecma: 5,
+            toplevel: opts.format === 'cjs',
+          })
+        : undefined,
+    ].filter((plugin) => typeof plugin !== 'undefined' && plugin !== null),
   };
 }
