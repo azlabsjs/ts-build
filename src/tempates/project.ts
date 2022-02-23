@@ -172,7 +172,7 @@ jobs:
       - name: Removes package-lock.json
         run: rm package-lock.json
 
-      - name: Install deps and build (with cache)
+      - name: Install deps
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
@@ -207,7 +207,7 @@ jobs:
       - name: Removes package-lock.json
         run: rm package-lock.json
 
-      - name: Install deps and build
+      - name: Install deps
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
