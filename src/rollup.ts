@@ -19,7 +19,6 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
   const outputName = [
     `${appDist}/${opts.format}/index`,
     shouldMinify ? 'min' : '',
-    ,
     'js',
   ]
     .filter(Boolean)
