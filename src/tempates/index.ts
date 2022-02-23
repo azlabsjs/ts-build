@@ -17,7 +17,9 @@ export const template = {
     license: 'MIT',
     main: 'dist/index.js',
     typings: `dist/types/index.d.ts`,
-    files: ['dist', 'src'],
+    files: [
+      'dist/**/*'
+    ],
     engines: {
       node: '>=14',
     },
