@@ -3,9 +3,6 @@
   "include": [
     "./src",
   ],
-  "exclude": [
-    "node_module/**/*"
-  ],
   "compilerOptions": {
     "target": "es2015",
     "module": "esnext",
@@ -39,6 +36,8 @@
     "skipLibCheck": true,
     // error out if import and file system have a casing mismatch. Recommended by TS
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    // Where typescript should output declaration files
+    "declarationDir": "lib/types"
   }
 }
