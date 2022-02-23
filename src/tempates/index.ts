@@ -11,7 +11,8 @@ export const template = {
     'ts-jest',
     '@types/jest',
     'jest-watch-typeahead',
-    '@typescript-eslint/parser'
+    '@typescript-eslint/parser',
+    '@typescript-eslint/eslint-plugin'
   ],
   packageJson: {
     version: '0.1.0',
