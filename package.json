@@ -74,6 +74,15 @@
       "default": "./lib/cjs/index.js"
     }
   },
+  "size-limit": [{
+      "path": "lib/cjs/index.js",
+      "limit": "24 KB"
+    },
+    {
+      "path": "lib/esm/index.js",
+      "limit": "24 KB"
+    }
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@iazlabs"
   }
