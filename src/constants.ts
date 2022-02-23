@@ -1,6 +1,7 @@
 import { resolveApp } from "./resolver";
 
 export const appDist = resolveApp('dist');
+export const appRoot = resolveApp('.');
 export const tsconfigJson = resolveApp('tsconfig.json');
 export const appConfig = resolveApp('app.config.js');
 export const packageJson = resolveApp('package.json');

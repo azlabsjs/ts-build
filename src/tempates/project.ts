@@ -41,6 +41,8 @@ const tsconfig = `
       // error out if import and file system have a casing mismatch. Recommended by TS
       "forceConsistentCasingInFileNames": true,
       "noEmit": true,
+      // Directory where typescript output declaration files
+      "declarationDir": "./dist/types"
     }
   }
 `;
@@ -73,18 +75,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 `;
 
+const jestConfig = `
+module.exports = {
+  transform: {
+    '.(ts|tsx)$': require.resolve('ts-jest/dist'),
+    '.(js|jsx)$': require.resolve('babel-jest'), // jest's default
+  },
+  transformIgnorePatterns: ['[/\\\\\\\\]node_modules[/\\\\\\\\].+\\\\.(js|jsx)$'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx,js,jsx}'],
+  testMatch: ['<rootDir>/tests/**/*.(spec|test).{ts,tsx,js,jsx}'],
+  testURL: 'http://localhost',
+  watchPlugins: [
+    require.resolve('jest-watch-typeahead/filename'),
+    require.resolve('jest-watch-typeahead/testname'),
+  ],
+};
+`;
+
 const test = `
 import { SayHello } from '../src';
 
 describe('SayHello Tests', () => {
   it('Greet the user provided name', () => {
-    expect(SayHello('Bertrand')).toEqual('Hello Bertrand!');
+    expect(SayHello('Bertrand')).toEqual('Hello, Bertrand');
   });
 });
 `;
 
 const defaultScript = `
-const SayHello = (name: string) => \`Hello Dear, \${name}\`;
+export const SayHello = (name: string) => \`Hello, \${name}\`;
 `;
 
 const gitflowMain = `
@@ -270,6 +290,9 @@ export const createProjectStructure = (path_: string) => {
 
   // TODO : ADD eslintrc configurations
   writeContent(path.join(path_, '.eslintrc.json'), esLintConfig);
+
+  // TODO : ADD eslintrc jest.config.js
+  writeContent(path.join(path_, 'jest.config.js'), jestConfig);
 
   // TODO : ADD .babelrc configurations
   writeContent(path.join(path_, '.babelrc'), babelConfig);

@@ -73,10 +73,10 @@ export const start = async function (projectName: string) {
   ${chalk.green('Awesome!')} Project successfully generated.
 
   Run:
-    ${Logger.cmd(`cd ${projectName}`)} to move in project directory
+    ${Logger.cmd(
+      `cd ${projectName}`
+    )} to move in project directory and start working
     
-  And run ${Logger.cmd(commands.install)} to install project dependencies.
-
   To build for production:
     ${Logger.cmd(commands.build)}
   To test your library with Jest:

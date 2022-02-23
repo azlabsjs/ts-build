@@ -1,9 +1,8 @@
 import { resolveApp } from './resolver';
 import fs from 'fs';
 import glob from 'tiny-glob/sync';
-import { readFileSync } from 'jsonfile';
 import { ModuleFormat, NormalizedOpts, PackageJson, WatchOpts } from './types';
-import { appDist, packageJson } from './constants';
+import { appDist } from './constants';
 import path from 'path';
 import shell from 'child_process';
 
@@ -58,18 +57,15 @@ export async function getInputs(entries: string | string[], source: string) {
   const values = await Promise.all(entries.map(async (file) => glob(file)));
   return concatAllArray(values);
 }
-
-export async function normalizeOpts(opts: WatchOpts): Promise<NormalizedOpts> {
-  let appPackageJson;
-  try {
-    appPackageJson = readFileSync(packageJson);
-  } catch (e) {
-    console.log(e);
-  }
+export async function normalizeOpts(
+  opts: WatchOpts,
+  name: string,
+  entry: string
+): Promise<NormalizedOpts> {
   return {
     ...opts,
-    name: opts.name ?? appPackageJson?.name,
-    input: await getInputs(opts.entry ?? [], appPackageJson?.source),
+    name: opts.name ?? name,
+    input: await getInputs(opts.entry ?? [], entry),
     format: opts.format.split(',').map((format) => {
       if (format === 'es') {
         return 'esm';
@@ -116,7 +112,7 @@ export function getNodeEngineRequirement({ engines }: PackageJson) {
 }
 
 const executeAsync = (command: string) => {
-  return new Promise<string|undefined>((resolve) => {
+  return new Promise<string | undefined>((resolve) => {
     shell.exec(command, (err, result) => {
       if (err) {
         return resolve(undefined);

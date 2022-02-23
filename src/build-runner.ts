@@ -82,31 +82,72 @@ function createAllFormats(opts: NormalizedOpts, input: string) {
   ].filter(Boolean);
 }
 
-export const run = async (options: BuildOpts) => {
-  const opts = await normalizeOpts(options);
-  const buildConfigs = await createBuildConfigs(opts);
-  // # TODO : Remove dist folder
-  if (fs.existsSync(appDist)) {
-    fs.rmSync(appDist, { force: true, recursive: true });
+// export const run = async (options: BuildOpts) => {
+//   const opts = await normalizeOpts(options);
+//   const buildConfigs = await createBuildConfigs(opts);
+//   // # TODO : Remove dist folder
+//   if (fs.existsSync(appDist)) {
+//     fs.rmSync(appDist, { force: true, recursive: true });
+//   }
+//   // #endregion
+//   const logger = createProgressEstimator();
+//   if (opts.format.includes('cjs')) {
+//     logger(writeEntryFile(), 'Creating entry file');
+//   }
+//   try {
+//     const promise = Promise.all(
+//       buildConfigs.map(async (options) => {
+//         const bundle = await rollup(options);
+//         await bundle.write(options.output);
+//       })
+//     ).catch((e) => {
+//       throw e;
+//     });
+//     logger(promise, 'Building modules');
+//     await promise;
+//   } catch (error) {
+//     logError(error);
+//     process.exit(1);
+//   }
+// };
+
+export default class TsBuild {
+  // Class constructor
+  constructor(
+    private options: BuildOpts,
+    private name: string,
+    private entry: string
+  ) {}
+
+  /**
+   * Compile Typescript files to Javascript
+   */
+  async compile() {
+    const opts = await normalizeOpts(this.options, this.name, this.entry);
+    const buildConfigs = await createBuildConfigs(opts);
+    // # TODO : Remove dist folder
+    if (fs.existsSync(appDist)) {
+      fs.rmSync(appDist, { force: true, recursive: true });
+    }
+    // #endregion
+    const logger = createProgressEstimator();
+    if (opts.format.includes('cjs')) {
+      logger(writeEntryFile(), 'Creating entry file');
+    }
+    try {
+      const promise = Promise.all(
+        buildConfigs.map(async (options) => {
+          const bundle = await rollup(options);
+          await bundle.write(options.output);
+        })
+      ).catch((e) => {
+        throw e;
+      });
+      logger(promise, 'Building modules');
+      await promise;
+    } catch (error) {
+      logError(error);
+      process.exit(1);
+    }
   }
-  // #endregion
-  const logger = createProgressEstimator();
-  if (opts.format.includes('cjs')) {
-    logger(writeEntryFile(), 'Creating entry file');
-  }
-  try {
-    const promise = Promise.all(
-      buildConfigs.map(async (options) => {
-        const bundle = await rollup(options);
-        await bundle.write(options.output);
-      })
-    ).catch((e) => {
-      throw e;
-    });
-    logger(promise, 'Building modules');
-    await promise;
-  } catch (error) {
-    logError(error);
-    process.exit(1);
-  }
-};
+}

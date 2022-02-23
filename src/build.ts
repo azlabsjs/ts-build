@@ -14,13 +14,25 @@ import semver from 'semver';
 import * as Messages from './messages';
 import { logError } from './logger';
 import child_process from 'child_process';
-import { run } from './build-runner';
+import TsBuild from './build-runner';
 import getInstallArgs, {
   createPackageName,
   getAuthorName,
   getInstallCmd,
   getNodeEngineRequirement,
 } from './helpers';
+import { readFileSync } from 'jsonfile';
+
+import { appRoot, packageJson } from './constants';
+import { createLinter, getErrorResultCount, outputfix } from './lint';
+import { createProgressEstimator } from './progress-estimator';
+
+let appPackageJson: { [inde: string]: any } = {};
+try {
+  appPackageJson = readFileSync(packageJson);
+} catch (e) {
+  console.log(e);
+}
 
 prog
   .version(pkg.version)
@@ -89,14 +101,19 @@ prog
     try {
       const cmd = await getInstallCmd();
       const dependencies = getInstallArgs(cmd, deps).join(' '); //
-      console.log(`${cmd} ${dependencies}`);
-      child_process.exec(`${cmd} ${dependencies}`, async(err) => {
-        if (err) {
-          return logError(`error: ${err.message}`);
-        }
-        console.log('Installed dependencies');
-        console.log(await Messages.start(pkg));
-      });
+      const estimator = createProgressEstimator();
+      await estimator(
+        new Promise<void>((__, _) => {
+          child_process.exec(`${cmd} ${dependencies}`, async (err) => {
+            if (err) {
+              return _(err);
+            }
+            __();
+          });
+        }),
+        'Installing Please wait...'
+      );
+      console.log(await Messages.start(pkg));
     } catch (error) {
       console.log('Failed to install dependencies');
       logError(error);
@@ -126,6 +143,75 @@ prog
   .example(
     'build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant='
   )
-  .action(run);
+  .action(async (options) =>
+    new TsBuild(
+      options,
+      appPackageJson['name'],
+      appPackageJson['source']
+    ).compile()
+  );
+
+prog
+  .command('lint')
+  .describe('Run eslint on the current project')
+  .example('lint src test')
+  .option('--fix', 'Fixes fixable errors and warnings')
+  .example('lint src test --fix')
+  .option('--ignore-pattern', 'Ignore a pattern')
+  .example('lint src test --ignore-pattern test/foobar.ts')
+  .example('lint src test --max-warnings 10')
+  .option('--write-file', 'Write the config file locally')
+  .example('lint --write-file')
+  .option('--report-file', 'Write json report to file locally')
+  .example('lint --report-file eslint-report.json')
+  .action(
+    async (options: {
+      fix: boolean;
+      'ignore-pattern': string;
+      'write-file': boolean;
+      'report-file': string;
+      _: string[];
+    }) => {
+      if (options['_'].length === 0 && !options['write-file']) {
+        const inputs = ['src'].filter(fs.existsSync);
+        options['_'] = inputs.map((path_: string) =>
+          path_.endsWith('/') ? path_ : path_.concat('/')
+        );
+        console.log(
+          chalk.yellow(
+            `Excuting linter on default paths "${inputs.join(' ')}"`,
+            '\nTo change this behaviour, change your lint script in your package.json to "lint": "ts-build lint src examples" where example is the other directories'
+          )
+        );
+      }
+
+      const linter = createLinter({
+        rootDir: appRoot,
+        write: options['write-file'],
+      })(
+        {
+          ...(appPackageJson['eslint'] ?? {}),
+          ignorePattern: options['ignore-pattern'],
+        },
+        {
+          fix: options.fix,
+        }
+      );
+      const results = await linter.lintFiles(options['_']);
+      if (options.fix) {
+        await outputfix(results);
+      }
+      console.log((await linter.loadFormatter()).format(results));
+      if (options['report-file']) {
+        await fs.outputFile(
+          options['report-file'],
+          (await linter.loadFormatter('json')).format(results)
+        );
+      }
+      if (getErrorResultCount(results) !== 0) {
+        process.exit(1);
+      }
+    }
+  );
 
 prog.parse(process.argv);

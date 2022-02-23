@@ -7,24 +7,27 @@ export const template = {
     'typescript',
     'size-limit',
     '@size-limit/preset-small-lib',
+    'jest',
+    'ts-jest',
+    '@types/jest',
+    'jest-watch-typeahead',
   ],
   packageJson: {
     version: '0.1.0',
     license: 'MIT',
     main: 'dist/index.js',
-    typings: `dist/index.d.ts`,
+    typings: `dist/types/index.d.ts`,
     files: ['dist', 'src'],
     engines: {
       node: '>=14',
     },
     scripts: {
-      // start: 'ts-build watch',
       build: 'ts-build build',
-      // test: 'ts-build test',
-      lint: 'eslint',
+      lint: 'ts-build lint',
       prepare: 'ts-build build',
       size: 'size-limit',
       analyze: 'size-limit --why',
+      test: 'jest',
     },
     peerDependencies: {},
     /*
@@ -49,6 +52,13 @@ export const template = {
       semi: true,
       singleQuote: true,
       trailingComma: 'es5',
+    },
+    exports: {
+      '.': {
+        import: './dist/esm/index.js',
+        require: './dist/cjs/index.js',
+        default: './dist/cjs/index.js',
+      },
     },
   } as { [index: string]: any },
 } as { [index: string]: any };
