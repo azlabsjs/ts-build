@@ -150,9 +150,6 @@ jobs:
 
       - name: Lint
         run: npm run lint
-
-      - name: Build
-        run: npm run build
     env:
       NODE_AUTH_TOKEN: \${{secrets.GITHUB_TOKEN}}
 
@@ -179,6 +176,9 @@ jobs:
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
+
+      - name: Build
+        run: npm run build
 
       - run: npm publish
     env:
@@ -211,6 +211,9 @@ jobs:
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
+  
+      - name: Build
+        run: npm run build
 
       - run: npm run size
     
