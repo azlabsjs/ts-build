@@ -150,9 +150,6 @@ jobs:
 
       - name: Lint
         run: npm run lint
-
-      - name: Build
-        run: npm run build
     env:
       NODE_AUTH_TOKEN: \${{secrets.GITHUB_TOKEN}}
 
@@ -175,10 +172,13 @@ jobs:
       - name: Removes package-lock.json
         run: rm package-lock.json
 
-      - name: Install deps and build (with cache)
+      - name: Install deps
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
+
+      - name: Build
+        run: npm run build
 
       - run: npm publish
     env:
@@ -207,10 +207,13 @@ jobs:
       - name: Removes package-lock.json
         run: rm package-lock.json
 
-      - name: Install deps and build
+      - name: Install deps
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
+  
+      - name: Build
+        run: npm run build
 
       - run: npm run size
     
