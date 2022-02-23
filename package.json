@@ -14,7 +14,7 @@
     "type-check:watch": "npm run type-check -- --watch",
     "build": "npm run build:ts",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:ts": "rm -rf ./lib && mkdir ./lib && tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json",
+    "build:ts": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "start": "tsc ./src/index.ts --watch"
   },
   "author": "azandrew-sidoine",
