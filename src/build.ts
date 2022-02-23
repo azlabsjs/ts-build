@@ -28,10 +28,18 @@ import { createLinter, getErrorResultCount, outputfix } from './lint';
 import { createProgressEstimator } from './progress-estimator';
 
 let appPackageJson: { [inde: string]: any } = {};
-try {
-  appPackageJson = readFileSync(packageJson);
-} catch (e) {
-  console.log(e);
+
+// Read the package.json file id exists
+if (fs.existsSync(packageJson)) {
+  try {
+    appPackageJson = readFileSync(packageJson);
+  } catch (e: any) {
+    console.log(
+      chalk.red(
+        `Error while reading package.json file in the current director: ${e.message}`
+      )
+    );
+  }
 }
 
 prog
