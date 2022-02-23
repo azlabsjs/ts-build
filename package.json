@@ -1,6 +1,6 @@
 {
   "name": "@iazlabs/ts-build",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "description": "",
   "main": "./lib/cjs/index.js",
   "files": [
