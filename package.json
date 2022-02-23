@@ -1,6 +1,6 @@
 {
   "name": "@iazlabs/ts-build",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "main": "./lib/cjs/index.js",
   "typings": "./lib/types/index.d.ts",
@@ -15,7 +15,9 @@
     "build": "npm run build:ts",
     "build:types": "tsc --emitDeclarationOnly",
     "build:ts": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
-    "start": "tsc ./src/index.ts --watch"
+    "start": "tsc ./src/index.ts --watch",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
   },
   "author": "azandrew-sidoine",
   "license": "MIT",
@@ -38,6 +40,7 @@
     "babel-plugin-polyfill-regenerator": "^0.3.1",
     "babel-plugin-transform-rename-import": "^2.3.0",
     "chalk": "^4.1.2",
+    "eslint": "^8.9.0",
     "fs-extra": "^10.0.1",
     "jsonfile": "^6.1.0",
     "progress-estimator": "^0.3.0",
@@ -52,20 +55,16 @@
   "devDependencies": {
     "@babel/cli": "^7.17.6",
     "@babel/types": "^7.17.0",
+    "@size-limit/preset-small-lib": "^7.0.8",
     "@types/babel__core": "^7.1.18",
     "@types/eslint": "^8.4.1",
     "@types/fs-extra": "^9.0.13",
     "@types/jsonfile": "^6.1.0",
     "@types/semver": "^7.3.9",
-    "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
-    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.3",
     "deepmerge": "^4.2.2",
-    "eslint": "^8.9.0",
-    "eslint-plugin-flowtype": "^8.0.3",
-    "eslint-plugin-import": "^2.25.4",
-    "prettier": "^2.5.1",
+    "size-limit": "^7.0.8",
     "typescript": "^4.5.5"
   },
   "exports": {
@@ -75,6 +74,15 @@
       "default": "./lib/cjs/index.js"
     }
   },
+  "size-limit": [{
+      "path": "lib/cjs/index.js",
+      "limit": "24 KB"
+    },
+    {
+      "path": "lib/esm/index.js",
+      "limit": "24 KB"
+    }
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@iazlabs"
   }

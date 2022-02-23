@@ -23,8 +23,11 @@ jobs:
         with:
           useLockFile: false
 
+      - name: Build
+        run: npm run build
+
       - run: npm run size
-    
+
     env:
       CI_JOB_NUMBER: 1
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
