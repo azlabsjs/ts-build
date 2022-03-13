@@ -28,6 +28,7 @@ export function eslintConfig(
     ],
     ...Object.fromEntries(
       Object.entries(extras).filter(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, value]) => typeof value !== 'undefined' && typeof value !== null
       )
     ),

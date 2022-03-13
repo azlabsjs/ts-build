@@ -261,6 +261,33 @@ const babelConfig = `
 }
 `;
 
+const bettererConfig = `
+import { typescript } from '@betterer/typescript';
+
+export default {
+  'stricter compilation': () =>
+    typescript('./tsconfig.json', {
+      strict: true,
+    }).include('./src/**/*.ts'),
+};
+`;
+
+const lintStagedConfig = `
+module.exports = {
+  '*.{ts,js}': ['prettier --write', 'eslint --fix'],
+  '*.html': ['prettier --write', 'eslint'],
+  '*.{json,md,css}': ['prettier --write'],
+};
+`;
+
+const precommitHook = `
+#!/bin/sh
+
+npx betterer precommit
+npx lint-staged
+ts-build build
+`;
+
 const writeContent = (path_: string, content: string) => {
   fs.open(path_, 'w+', (err, fd) => {
     if (err) {
@@ -324,4 +351,17 @@ export const createProjectStructure = (path_: string) => {
     path.join(path_, '.github', 'workflows', 'size.yml'),
     gitflowSize
   );
+
+  // GIT PRE-COMMIT FILES
+  if (!fs.existsSync(path.join(path_, '.githooks'))) {
+    fs.mkdirSync(path.join(path_, '.githooks'), { recursive: true });
+  }
+  // TODO : CREATE PRE-COMMIT HOOKS FILES
+  writeContent(path.join(path_, '.githooks', 'pre-commit'), precommitHook);
+
+  // TODO : CREATE BETTERER CONFIG FILES
+  writeContent(path.join(path_, '.betterer.ts'), bettererConfig);
+
+  // TODO : CREATE LINT STAGED CONFIG FILES
+  writeContent(path.join(path_, 'lint-staged.config.js'), lintStagedConfig);
 };

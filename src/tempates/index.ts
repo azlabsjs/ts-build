@@ -12,7 +12,9 @@ export const template = {
     '@types/jest',
     'jest-watch-typeahead',
     '@typescript-eslint/parser',
-    '@typescript-eslint/eslint-plugin'
+    '@typescript-eslint/eslint-plugin',
+    '@betterer/typescript',
+    '@betterer/cli'
   ],
   packageJson: {
     version: '0.1.0',
@@ -28,10 +30,11 @@ export const template = {
     scripts: {
       build: 'ts-build build',
       lint: 'ts-build lint',
-      prepare: 'ts-build build',
+      prepare: 'git config core.hookspath .githooks && ts-build build',
       size: 'size-limit',
       analyze: 'size-limit --why',
       test: 'jest',
+      betterer: "betterer --strict"
     },
     peerDependencies: {},
     /*
