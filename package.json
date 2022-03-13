@@ -17,7 +17,8 @@
     "build:ts": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "start": "tsc ./src/index.ts --watch",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "betterer": "betterer --strict"
   },
   "author": "azandrew-sidoine",
   "license": "MIT",
@@ -66,7 +67,8 @@
     "babel-loader": "^8.2.3",
     "deepmerge": "^4.2.2",
     "size-limit": "^7.0.8",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "@betterer/cli": "^5.1.6"
   },
   "exports": {
     ".": {
