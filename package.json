@@ -1,11 +1,11 @@
 {
   "name": "@iazlabs/ts-build",
   "version": "0.1.9",
-  "description": "",
+  "description": "Typescript library generator package",
   "main": "./lib/cjs/index.js",
   "typings": "./lib/types/index.d.ts",
   "files": [
-    "lib"
+    "lib/**/*"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
