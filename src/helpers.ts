@@ -84,7 +84,7 @@ if (process.env.NODE_ENV === 'production') {
   module.exports = require('./cjs/index.js')
 }
 `;
-  return new Promise((__, reject) => {
+  return new Promise((resolve, reject) => {
     // Create directory if not exist
     if (!fs.existsSync(appDist)) {
       fs.mkdirSync(appDist, { recursive: true });
@@ -94,7 +94,7 @@ if (process.env.NODE_ENV === 'production') {
         reject(err);
       }
       try {
-        __(fs.writeFileSync(fd, contents));
+        resolve(fs.writeFileSync(fd, contents));
       } catch (error) {
         reject(error);
       } finally {
@@ -126,29 +126,24 @@ const executeAsync = (command: string) => {
   });
 };
 
-export function getAuthorName() {
-  return new Promise((resolve) => {
-    executeAsync('npm config get init-author-name').then((author) => {
-      if (typeof author === 'string') {
-        return resolve(author);
-      }
-      executeAsync('git config --global user.name').then((author) => {
-        if (typeof author === 'string') {
-          return resolve(author);
-        }
-        executeAsync('git config --global user.email').then((author) => {
-          if (typeof author === 'string') {
-            return resolve(author);
-          }
-          executeAsync('npm config get init-author-email').then((author) => {
-            if (typeof author === 'string') {
-              return resolve(author);
-            }
-          });
-        });
-      });
-    });
-  });
+export async function getAuthorName() {
+  let author = await executeAsync('npm config get init-author-name');
+  if (typeof author === 'string') {
+    return author;
+  }
+  author = await executeAsync('git config --global user.name');
+  if (typeof author === 'string') {
+    return author;
+  }
+  author = await executeAsync('git config --global user.email');
+  if (typeof author === 'string') {
+    return author;
+  }
+  author = await executeAsync('npm config get init-author-email');
+  if (typeof author === 'string') {
+    return author;
+  }
+  return 'author <unknown>';
 }
 
 export default function getInstallArgs(

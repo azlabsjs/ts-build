@@ -3,7 +3,6 @@ import { appDist } from './constants';
 import { createProgressEstimator } from './progress-estimator';
 import { rollup } from 'rollup';
 import { logError } from './logger';
-
 import { concatAllArray } from './helpers';
 import { createRollupConfig } from './rollup';
 import { BuildOptions, BuildOpts, NormalizedOpts } from './types';

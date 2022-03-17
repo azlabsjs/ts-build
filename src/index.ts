@@ -1,2 +1,2 @@
-import TsBuild from "./build-runner";
+import TsBuild from "./builder";
 export default TsBuild;

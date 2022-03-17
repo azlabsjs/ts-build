@@ -14,7 +14,7 @@ import semver from 'semver';
 import * as Messages from './messages';
 import { logError } from './logger';
 import child_process from 'child_process';
-import TsBuild from './build-runner';
+import TsBuild from './builder';
 import getInstallArgs, {
   createPackageName,
   getAuthorName,
@@ -22,19 +22,20 @@ import getInstallArgs, {
   getNodeEngineRequirement,
 } from './helpers';
 import { readFileSync } from 'jsonfile';
-
 import { appRoot, packageJson } from './constants';
 import { createLinter, getErrorResultCount, outputfix } from './lint';
 import { createProgressEstimator } from './progress-estimator';
 
-let appPackageJson: { [inde: string]: any } = {};
+// Define globals
+let appPackageJson: { [index: string]: any } = {};
+const Log = console.log;
 
 // Read the package.json file id exists
 if (fs.existsSync(packageJson)) {
   try {
     appPackageJson = readFileSync(packageJson);
   } catch (e: any) {
-    console.log(
+    Log(
       chalk.red(
         `Error while reading package.json file in the current director: ${e.message}`
       )
@@ -48,7 +49,7 @@ prog
   .describe('Create a new package with ts-build')
   .example('create mypackage')
   .action(async (pkg: string, opts: any) => {
-    console.log(`Creating ${chalk.bold.green(pkg)}...`);
+    Log(`Creating ${chalk.bold.green(pkg)}...`);
     // Helper fn to prompt the user for a different
     // folder name if one already exists
     async function getProjectPath(projectPath: string) {
@@ -56,7 +57,7 @@ prog
       if (!exists) {
         return projectPath;
       }
-      console.log(`Failed to create ${chalk.bold.red(pkg)}`);
+      Log(`Failed to create ${chalk.bold.red(pkg)}`);
       process.exit(1);
     }
 
@@ -64,7 +65,7 @@ prog
       // get the project path
       const realPath = await fs.realpath(process.cwd());
       const projectPath = await getProjectPath(`${realPath}/${pkg}`);
-      const author = (opts.author ?? (await getAuthorName())).trim();
+      const author = (opts.author as string ?? (await getAuthorName()))?.trim();
       // Create the project structure
       createProjectStructure(projectPath);
 
@@ -74,7 +75,7 @@ prog
       );
 
       license = license.replace(/<year>/, `${new Date().getFullYear()}`);
-      license = license.replace(/<author>/, author);
+      license = license.replace(/<author>/, author ?? '');
 
       await fs.writeFile(path.resolve(projectPath, 'LICENSE'), license, {
         encoding: 'utf-8',
@@ -92,38 +93,38 @@ prog
         typeof nodeVersionReq === 'string' &&
         !semver.satisfies(process.version, nodeVersionReq)
       ) {
-        console.log(Messages.incorrectNodeVersion(nodeVersionReq));
+        Log(Messages.incorrectNodeVersion(nodeVersionReq));
         process.exit(1);
       }
 
       await fs.outputJSON(path.resolve(projectPath, 'package.json'), pkgJson);
-      console.log(`Created ${chalk.bold.green(pkg)}`);
+      Log(`Created ${chalk.bold.green(pkg)}`);
       await Messages.start(pkg);
     } catch (error) {
-      console.log(`Failed to create ${chalk.bold.red(pkg)}`);
+      Log(`Failed to create ${chalk.bold.red(pkg)}`);
       logError(error);
       process.exit(1);
     }
     const { dependencies: deps } = TemplateConfig;
-    console.log(Messages.installing(deps.sort()));
+    Log(Messages.installing(deps.sort()));
     try {
       const cmd = await getInstallCmd();
       const dependencies = getInstallArgs(cmd, deps).join(' '); //
       const estimator = createProgressEstimator();
       await estimator(
-        new Promise<void>((__, _) => {
+        new Promise<void>((resolve, error) => {
           child_process.exec(`${cmd} ${dependencies}`, async (err) => {
             if (err) {
-              return _(err);
+              return error(err);
             }
-            __();
+            resolve();
           });
         }),
         'Installing Please wait...'
       );
-      console.log(await Messages.start(pkg));
+      Log(await Messages.start(pkg));
     } catch (error) {
-      console.log('Failed to install dependencies');
+      Log('Failed to install dependencies');
       logError(error);
       process.exit(1);
     }
@@ -185,7 +186,7 @@ prog
         options['_'] = inputs.map((path_: string) =>
           path_.endsWith('/') ? path_ : path_.concat('/')
         );
-        console.log(
+        Log(
           chalk.yellow(
             `Excuting linter on default paths "${inputs.join(' ')}"`,
             '\nTo change this behaviour, change your lint script in your package.json to "lint": "ts-build lint src examples" where example is the other directories'
@@ -209,7 +210,7 @@ prog
       if (options.fix) {
         await outputfix(results);
       }
-      console.log((await linter.loadFormatter()).format(results));
+      Log((await linter.loadFormatter()).format(results));
       if (options['report-file']) {
         await fs.outputFile(
           options['report-file'],
