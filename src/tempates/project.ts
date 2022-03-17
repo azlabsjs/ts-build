@@ -288,6 +288,11 @@ npx lint-staged
 ts-build build
 `;
 
+const npmrcConfigForTsBuild = `
+@iazlabs:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}
+`;
+
 const writeContent = (path_: string, content: string) => {
   fs.open(path_, 'w+', (err, fd) => {
     if (err) {
@@ -364,4 +369,7 @@ export const createProjectStructure = (path_: string) => {
 
   // TODO : CREATE LINT STAGED CONFIG FILES
   writeContent(path.join(path_, 'lint-staged.config.js'), lintStagedConfig);
+
+  // TODO : CREATE NPMRC CONFIG FILES
+  writeContent(path.join(path_, '.npmrc'), npmrcConfigForTsBuild);
 };
