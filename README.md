@@ -1,3 +1,9 @@
 # ts-build
 
-Typescript project generator and builder package.
+Typescript library generator packages. Easily create modern javascript package with zero-configuration.
+
+## Usage
+
+To create a new library run:
+
+> npx @azlabsjs/ts-build create <package_name>

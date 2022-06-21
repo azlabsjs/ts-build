@@ -2,7 +2,7 @@ export const template = {
   name: "basic",
   dependencies: [
     "husky",
-    "@iazlabs/ts-build",
+    "@azlabsjs/ts-build",
     "tslib",
     "typescript",
     "size-limit",

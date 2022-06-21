@@ -165,7 +165,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
-          scope: '@iazlabs'
+          scope: '@azlabsjs'
       - name: Check npm version
         run: npm -v
 
@@ -289,7 +289,7 @@ ts-build build
 `;
 
 const npmrcConfigForTsBuild = `
-@iazlabs:registry=https://npm.pkg.github.com/
+@azlabsjs:registry=https://npm.pkg.github.com/
 //npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}
 `;
 

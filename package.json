@@ -1,5 +1,5 @@
 {
-  "name": "@iazlabs/ts-build",
+  "name": "@azlabsjs/ts-build",
   "version": "0.1.12",
   "description": "Typescript library generator package",
   "main": "./lib/cjs/index.js",
@@ -88,6 +88,6 @@
     }
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@iazlabs"
+    "registry": "https://npm.pkg.github.com/@azlabsjs"
   }
 }
