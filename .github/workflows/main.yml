@@ -34,7 +34,7 @@ jobs:
         run: rm package-lock.json
 
       - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v3
+        uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
 
@@ -63,7 +63,7 @@ jobs:
         run: rm package-lock.json
 
       - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v3
+        uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
 
