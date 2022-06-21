@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import chalk from 'chalk';
 import sade from 'sade';
 const pkg = require('../../package.json');
