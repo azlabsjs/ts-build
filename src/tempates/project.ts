@@ -85,7 +85,9 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: ['src/**/*.{ts,tsx,js,jsx}'],
   testMatch: ['<rootDir>/tests/**/*.(spec|test).{ts,tsx,js,jsx}'],
-  testURL: 'http://localhost',
+  testEnvironmentOptions: {
+    url: 'http://localhost'
+  },
   watchPlugins: [
     require.resolve('jest-watch-typeahead/filename'),
     require.resolve('jest-watch-typeahead/testname'),
@@ -130,10 +132,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Use Node \${{ matrix.node }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: \${{ matrix.node }}
 
@@ -160,10 +162,10 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 12
+          node-version: 16
           registry-url: https://npm.pkg.github.com/
           scope: '@azlabsjs'
       - name: Check npm version
