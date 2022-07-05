@@ -1,4 +1,4 @@
-import { PackageJson } from 'type-fest';
+import { PackageJson } from "../types";
 
 export interface Template {
   dependencies: string[];

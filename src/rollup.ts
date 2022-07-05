@@ -10,6 +10,7 @@ import typescript from 'rollup-plugin-typescript2';
 import ts from 'typescript';
 import { babelPlugin } from './rollup-plugin-config-helpers';
 import replace from '@rollup/plugin-replace';
+import { RollupOptions } from 'rollup';
 
 const shebang: { [index: string]: any } = {};
 
@@ -61,7 +62,9 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
       sourcemap: true,
       globals: { react: 'React', 'react-native': 'ReactNative' },
       exports: 'named',
+      inlineDynamicImports: opts.inlineDynamicImports ? true : false,
     },
+    external: opts.external ?? [],
     plugins: [
       resolve({
         mainFields,
@@ -165,5 +168,5 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
           })
         : undefined,
     ].filter((plugin) => typeof plugin !== 'undefined' && plugin !== null),
-  };
+  } as RollupOptions;
 }

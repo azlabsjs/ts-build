@@ -93,7 +93,15 @@ export default class TsBuild {
    * Compile Typescript files to Javascript
    */
   async compile() {
-    const opts = await normalizeOpts(this.options, this.name, this.entry);
+    const externalModules = this.options?.external ?? [];
+    const buildOpts: BuildOpts = {
+      ...this.options,
+      external:
+        typeof externalModules === 'string'
+          ? externalModules.split(',')
+          : externalModules,
+    };
+    const opts = await normalizeOpts(buildOpts, this.name, this.entry);
     const buildConfigs = await createBuildConfigs(opts);
     // # TODO : Remove dist folder
     if (fs.existsSync(appDist)) {

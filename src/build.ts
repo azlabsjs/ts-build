@@ -66,7 +66,9 @@ prog
       // get the project path
       const realPath = await fs.realpath(process.cwd());
       const projectPath = await getProjectPath(`${realPath}/${pkg}`);
-      const author = (opts.author as string ?? (await getAuthorName()))?.trim();
+      const author = (
+        (opts.author as string) ?? (await getAuthorName())
+      )?.trim();
       // Create the project structure
       createProjectStructure(projectPath);
 
@@ -146,6 +148,10 @@ prog
   .example('build --tsconfig ./tsconfig.foo.json')
   .option('--transpileOnly', 'Skip type checking')
   .example('build --transpileOnly')
+  .option('--external', 'List of external modules')
+  .example('build --external lodash,conf')
+  .option('--inlineDynamicImports', 'Rollup should inline dynamic imports', true)
+  .example('build --inlineDynamicImports')
   .option(
     '--extractErrors',
     'Extract errors to ./errors/codes.json and provide a url for decoding.'

@@ -14,6 +14,8 @@ export interface BuildOpts extends SharedOpts {
   entry?: string | string[];
   format: 'cjs,esm';
   target: 'browser';
+  external?: string|string[];
+  inlineDynamicImports?: boolean;
 }
 
 export interface WatchOpts extends BuildOpts {
@@ -47,6 +49,8 @@ export interface BuildOptions extends SharedOpts {
   writeMeta?: boolean;
   // Only transpile, do not type check (makes compilation faster)
   transpileOnly?: boolean;
+  external?: string|string[];
+  inlineDynamicImports?: boolean;
 }
 
 export interface PackageJson {
