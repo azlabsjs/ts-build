@@ -1,6 +1,6 @@
 {
   "name": "@azlabsjs/ts-build",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Typescript library generator package",
   "main": "./lib/cjs/index.js",
   "typings": "./lib/types/index.d.ts",
