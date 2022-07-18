@@ -20,7 +20,7 @@ export const template = {
   packageJson: {
     version: "0.1.0",
     license: "MIT",
-    main: "dist/index.cjs",
+    main: "dist/index.js",
     module: `dist/esm/index.mjs`,
     typings: `dist/types/index.d.ts`,
     files: ["dist/**/*"],

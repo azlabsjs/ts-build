@@ -79,9 +79,9 @@ export function writeEntryFile() {
   const contents = `
 'use strict'
 if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./cjs/index.min.js')
+  module.exports = require('./cjs/index.min.cjs')
 }else {
-  module.exports = require('./cjs/index.js')
+  module.exports = require('./cjs/index.cjs')
 }
 `;
   return new Promise((resolve, reject) => {
