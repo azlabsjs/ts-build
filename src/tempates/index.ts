@@ -20,7 +20,8 @@ export const template = {
   packageJson: {
     version: "0.1.0",
     license: "MIT",
-    main: "dist/index.js",
+    main: "dist/index.cjs",
+    module: `dist/esm/index.mjs`,
     typings: `dist/types/index.d.ts`,
     files: ["dist/**/*"],
     engines: {
@@ -49,9 +50,9 @@ export const template = {
     },
     exports: {
       ".": {
-        import: "./dist/esm/index.js",
-        require: "./dist/cjs/index.js",
-        default: "./dist/cjs/index.js",
+        import: "./dist/esm/index.mjs",
+        require: "./dist/cjs/index.cjs",
+        default: "./dist/cjs/index.cjs",
       },
     },
   } as { [index: string]: any },

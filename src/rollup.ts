@@ -17,10 +17,12 @@ const shebang: { [index: string]: any } = {};
 export async function createRollupConfig(opts: BuildOptions, index: number) {
   const shouldMinify =
     opts.minify !== undefined ? opts.minify : opts.env === 'production';
+  // Defines the output file extension based on the specified output format
+  const extension = opts.format === 'esm' ? 'mjs' : 'cjs';
   const outputName = [
     `${appDist}/${opts.format}/index`,
     shouldMinify ? 'min' : '',
-    'js',
+    extension,
   ]
     .filter(Boolean)
     .join('.');

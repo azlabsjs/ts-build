@@ -7,14 +7,13 @@ export const composePackageJson =
       ...template.packageJson,
       name,
       author,
-      module: `dist/esm/index.js`,
       'size-limit': [
         {
-          path: `dist/cjs/index.js`,
+          path: `dist/cjs/index.cjs`,
           limit: '10 KB',
         },
         {
-          path: `dist/esm/index.js`,
+          path: `dist/esm/index.mjs`,
           limit: '10 KB',
         },
       ],
