@@ -10,11 +10,11 @@ export const composePackageJson =
       'size-limit': [
         {
           path: `dist/cjs/index.cjs`,
-          limit: '10 KB',
+          limit: '20 KB',
         },
         {
           path: `dist/esm/index.mjs`,
-          limit: '10 KB',
+          limit: '20 KB',
         },
       ],
     };
