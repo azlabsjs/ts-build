@@ -16,6 +16,7 @@ export const template = {
     "@betterer/typescript",
     "@betterer/cli",
     "prettier",
+    "@babel/runtime"
   ],
   packageJson: {
     version: "0.1.0",

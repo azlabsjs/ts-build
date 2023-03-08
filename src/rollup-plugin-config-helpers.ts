@@ -58,6 +58,10 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
       },
       config(config) {
         let plugins: { name: string; [index: string]: any }[] = [
+          {
+            name: '@babel/plugin-transform-runtime',
+            absoluteRuntime: false,
+          },
           { name: 'babel-plugin-macros' },
           { name: 'babel-plugin-annotate-pure-calls' },
           { name: 'babel-plugin-dev-expression' },
