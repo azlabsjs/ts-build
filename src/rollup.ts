@@ -143,7 +143,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
       })({
         exclude: 'node_modules/**',
         extensions: [...DEFAULT_BABEL_EXTENSIONS, 'ts'],
-        babelHelpers: 'bundled',
+        babelHelpers: 'runtime',
       }),
       opts.env !== undefined
         ? replace({
