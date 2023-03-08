@@ -6,11 +6,12 @@ import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import replace from '@rollup/plugin-replace';
 import { RollupOptions } from 'rollup';
 import typescript from 'rollup-plugin-typescript2';
-import { terser } from 'rollup-terser';
+import terser from '@rollup/plugin-terser';
 import ts from 'typescript';
 import { appDist, tsconfigJson } from './constants';
 import { babelPlugin } from './rollup-plugin-config-helpers';
 import { BuildOptions } from './types';
+import { MinifyOptions } from 'terser';
 
 const shebang: { [index: string]: any } = {};
 
@@ -153,8 +154,12 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
         : undefined,
       shouldMinify
         ? terser({
+            sourceMap: true,
             output: {
-              comments: (_: unknown, comment: { value: string; type: string }) => {
+              comments: (
+                _: unknown,
+                comment: { value: string; type: string }
+              ) => {
                 const text = comment.value;
                 const type = comment.type;
                 return type == 'comment2'
@@ -169,7 +174,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
             },
             ecma: 2015,
             toplevel: opts.format === 'cjs',
-          })
+          } as MinifyOptions)
         : undefined,
     ].filter((plugin) => typeof plugin !== 'undefined' && plugin !== null),
   } as RollupOptions;
