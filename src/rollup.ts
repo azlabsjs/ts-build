@@ -5,7 +5,6 @@ import resolve, { DEFAULTS } from '@rollup/plugin-node-resolve';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import replace from '@rollup/plugin-replace';
 import { RollupOptions } from 'rollup';
-import sourceMaps from 'rollup-plugin-sourcemaps';
 import typescript from 'rollup-plugin-typescript2';
 import { terser } from 'rollup-terser';
 import ts from 'typescript';
@@ -152,7 +151,6 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
             preventAssignment: true,
           })
         : undefined,
-      sourceMaps(),
       shouldMinify
         ? terser({
             output: {

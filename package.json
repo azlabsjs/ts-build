@@ -47,7 +47,6 @@
     "progress-estimator": "^0.3.0",
     "rollup": "^3.5.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-typescript2": "^0.34.1",
     "rollup-terser": "^1.0.3",
     "sade": "^1.8.1",

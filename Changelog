@@ -1,0 +1,7 @@
+# Changelogs
+
+## [0.3.0]
+
+- Added rollup-plugin-peer-deps-external as rollup plugin to exclude package per dependency from the generated bundle
+- Fully support for rollup version >=3.0
+- Remove source map plugin
