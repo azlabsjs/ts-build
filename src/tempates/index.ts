@@ -13,8 +13,6 @@ export const template = {
     "jest-watch-typeahead",
     "@typescript-eslint/parser",
     "@typescript-eslint/eslint-plugin",
-    "@betterer/typescript",
-    "@betterer/cli",
     "prettier",
     "@babel/runtime"
   ],
@@ -35,7 +33,6 @@ export const template = {
       size: "size-limit",
       analyze: "size-limit --why",
       test: "jest",
-      betterer: "betterer --strict",
       prettier: "prettier --write src/**/*",
     },
     husky: {
