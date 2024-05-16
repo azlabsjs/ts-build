@@ -1,13 +1,13 @@
-import { normalizeOpts, writeEntryFile } from './helpers';
-import { appDist } from './constants';
-import { createProgressEstimator } from './progress-estimator';
-import { rollup } from 'rollup';
-import { logError } from './logger';
-import { concatAllArray } from './helpers';
-import { createRollupConfig } from './rollup';
-import { BuildOptions, BuildOpts, NormalizedOpts } from './types';
-import fs from 'fs';
-import { appConfig } from './constants';
+import { normalizeOpts, writeEntryFile } from "./helpers";
+import { appDist } from "./constants";
+import { createProgressEstimator } from "./progress-estimator";
+import { rollup } from "rollup";
+import { logError } from "./logger";
+import { concatAllArray } from "./helpers";
+import { createRollupConfig } from "./rollup";
+import { BuildOptions, BuildOpts, NormalizedOpts } from "./types";
+import fs from "fs";
+import { appConfig } from "./constants";
 
 let configurations = {
   rollup(config: { [index: string]: any }) {
@@ -20,7 +20,7 @@ if (fs.existsSync(appConfig)) {
 }
 
 export async function createBuildConfigs(opts: NormalizedOpts) {
-  const allInputs: BuildOptions[] = concatAllArray(
+  const inputs: BuildOptions[] = concatAllArray(
     opts.input.map((input) =>
       createAllFormats(opts, input).map((options, index) => ({
         ...options,
@@ -30,10 +30,18 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
       }))
     )
   );
-
   return await Promise.all(
-    allInputs.map(async (options, index) => {
-      const config = await createRollupConfig(options, index);
+    inputs.map(async (options, index) => {
+      const config = await createRollupConfig(
+        options,
+        index,
+        // We only copy typescrit declaration files if we are on the
+        // second iteration, and options.format includes esm module builds as `createAllFormats` 
+        // will generates builds for esm module
+        // This make sure that typescript files are emitted at least once before we attempt to copy
+        // its declaration files
+        inputs.length > 1 && index === 1 && options.format.includes('esm')
+      );
       return configurations.rollup(config);
     })
   );
@@ -41,41 +49,41 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
 
 function createAllFormats(opts: NormalizedOpts, input: string) {
   return [
-    opts.format.includes('cjs') && {
+    opts.format.includes("esm") && { ...opts, format: "esm", input },
+    opts.format.includes("umd") && {
       ...opts,
-      format: 'cjs',
-      env: 'development',
+      format: "umd",
+      env: "development",
       input,
     },
-    opts.format.includes('cjs') && {
+    opts.format.includes("umd") && {
       ...opts,
-      format: 'cjs',
-      env: 'production',
+      format: "umd",
+      env: "production",
       input,
     },
-    opts.format.includes('esm') && { ...opts, format: 'esm', input },
-    opts.format.includes('umd') && {
+    opts.format.includes("system") && {
       ...opts,
-      format: 'umd',
-      env: 'development',
+      format: "system",
+      env: "development",
       input,
     },
-    opts.format.includes('umd') && {
+    opts.format.includes("system") && {
       ...opts,
-      format: 'umd',
-      env: 'production',
+      format: "system",
+      env: "production",
       input,
     },
-    opts.format.includes('system') && {
+    opts.format.includes("cjs") && {
       ...opts,
-      format: 'system',
-      env: 'development',
+      format: "cjs",
+      env: "development",
       input,
     },
-    opts.format.includes('system') && {
+    opts.format.includes("cjs") && {
       ...opts,
-      format: 'system',
-      env: 'production',
+      format: "cjs",
+      env: "production",
       input,
     },
   ].filter(Boolean);
@@ -97,8 +105,8 @@ export default class TsBuild {
     const buildOpts: BuildOpts = {
       ...this.options,
       external:
-        typeof externalModules === 'string'
-          ? externalModules.split(',')
+        typeof externalModules === "string"
+          ? externalModules.split(",")
           : externalModules,
     };
     const opts = await normalizeOpts(buildOpts, this.name, this.entry);
@@ -109,8 +117,8 @@ export default class TsBuild {
     }
     // #endregion
     const logger = createProgressEstimator();
-    if (opts.format.includes('cjs')) {
-      logger(writeEntryFile(), 'Creating entry file');
+    if (opts.format.includes("cjs")) {
+      logger(writeEntryFile(), "Creating entry file");
     }
     try {
       const promise = Promise.all(
@@ -121,7 +129,7 @@ export default class TsBuild {
       ).catch((e) => {
         throw e;
       });
-      logger(promise, 'Building modules');
+      logger(promise, "Building modules");
       await promise;
     } catch (error) {
       logError(error);

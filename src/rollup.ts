@@ -1,37 +1,41 @@
-import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core';
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
-import resolve, { DEFAULTS } from '@rollup/plugin-node-resolve';
-import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import replace from '@rollup/plugin-replace';
-import { RollupOptions } from 'rollup';
-import typescript from 'rollup-plugin-typescript2';
-import terser from '@rollup/plugin-terser';
-import ts from 'typescript';
-import { appDist, tsconfigJson } from './constants';
-import { babelPlugin } from './rollup-plugin-config-helpers';
-import { BuildOptions } from './types';
-import { MinifyOptions } from 'terser';
-import copy from 'rollup-plugin-copy';
+import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from "@babel/core";
+import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import resolve, { DEFAULTS } from "@rollup/plugin-node-resolve";
+import peerDepsExternal from "rollup-plugin-peer-deps-external";
+import replace from "@rollup/plugin-replace";
+import { RollupOptions } from "rollup";
+import typescript from "rollup-plugin-typescript2";
+import terser from "@rollup/plugin-terser";
+import ts from "typescript";
+import { appDist, tsconfigJson } from "./constants";
+import { babelPlugin } from "./rollup-plugin-config-helpers";
+import { BuildOptions } from "./types";
+import { MinifyOptions } from "terser";
+import copy from "rollup-plugin-copy";
 
 const shebang: { [index: string]: any } = {};
 
-export async function createRollupConfig(opts: BuildOptions, index: number) {
+export async function createRollupConfig(
+  opts: BuildOptions,
+  index: number,
+  copyTypeDeclarations: boolean
+) {
   const shouldMinify =
-    opts.minify !== undefined ? opts.minify : opts.env === 'production';
+    opts.minify !== undefined ? opts.minify : opts.env === "production";
   // Defines the output file extension based on the specified output format
-  const extension = opts.format === 'esm' ? 'mjs' : 'cjs';
+  const extension = opts.format === "esm" ? "mjs" : "cjs";
   const outputName = [
     `${appDist}/${opts.format}/index`,
-    shouldMinify ? 'min' : '',
+    shouldMinify ? "min" : "",
     extension,
   ]
     .filter(Boolean)
-    .join('.');
+    .join(".");
 
-  const mainFields = ['module', 'main'];
-  if (opts.target !== 'node') {
-    mainFields.push('browser');
+  const mainFields = ["module", "main"];
+  if (opts.target !== "node") {
+    mainFields.push("browser");
   }
 
   const tsconfigPath = tsconfigJson;
@@ -41,7 +45,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
   const tsCompilerOptions = ts.parseJsonConfigFileContent(
     tsconfigJSON,
     ts.sys,
-    './'
+    "./"
   ).options;
 
   return {
@@ -64,36 +68,30 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
       esModule: Boolean(tsCompilerOptions?.esModuleInterop),
       name: opts.name,
       sourcemap: true,
-      globals: { react: 'React', 'react-native': 'ReactNative' },
-      exports: 'named',
+      globals: { react: "React", "react-native": "ReactNative" },
+      exports: "named",
       inlineDynamicImports: opts.inlineDynamicImports ? true : false,
     },
     // Added babel/runtime as an external dependency in order to tell rollup to exclude any babel runtime dependencies
     // As babel plugin configuration is using `runtime` as value
-    external: ['@babel/runtime', ...(opts.external ?? [])],
+    external: ["@babel/runtime", ...(opts.external ?? [])],
     plugins: [
       peerDepsExternal(),
       resolve({
         mainFields,
         extensions: [...DEFAULTS.extensions],
       }),
-      // Copy typescript types declaration files to .d.mts for module files
-      copy({
-        targets: [
-          { src: 'dist/types/index.d.ts', dest: 'dist/types/index.d.mts' }
-        ]
-      }),
       // all bundled external modules need to be converted from CJS to ESM
       commonjs({
         // use a regex to make sure to include eventual hoisted packages
         include:
-          opts.format === 'umd'
+          opts.format === "umd"
             ? /\/node_modules\//
             : /\/regenerator-runtime\//,
       }),
       json(),
       {
-        name: 'rm-shebang',
+        name: "rm-shebang",
         // Custom plugin that removes shebang from code because newer
         // versions of bublé bundle their own private version of `acorn`
         // and I don't know a way to patch in the option `allowHashBang`
@@ -103,9 +101,9 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
           const reg = /^#!(.*)/;
           const match = code.match(reg);
 
-          shebang[opts.name] = match ? '#!' + match[1] : '';
+          shebang[opts.name] = match ? "#!" + match[1] : "";
 
-          code = code.replace(reg, '');
+          code = code.replace(reg, "");
 
           return {
             code,
@@ -119,25 +117,25 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
         tsconfigDefaults: {
           exclude: [
             // all TS test files, regardless whether co-located or in test/ etc
-            '**/*.spec.ts',
-            '**/*.test.ts',
-            '**/*.spec.tsx',
-            '**/*.test.tsx',
+            "**/*.spec.ts",
+            "**/*.test.ts",
+            "**/*.spec.tsx",
+            "**/*.test.tsx",
             // TS defaults below
-            'node_modules',
-            'bower_components',
-            'jspm_packages',
+            "node_modules",
+            "bower_components",
+            "jspm_packages",
             appDist,
           ],
           compilerOptions: {
             sourceMap: true,
             declaration: true,
-            jsx: 'react',
+            jsx: "react",
           },
         },
         tsconfigOverride: {
           compilerOptions: {
-            target: 'esnext',
+            target: "esnext",
           },
           ...(index > 0 ? { declaration: false, declarationMap: false } : {}),
         },
@@ -145,17 +143,17 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
         useTsconfigDeclarationDir: Boolean(tsCompilerOptions?.declarationDir),
       }),
       babelPlugin({
-        targets: opts.target === 'node' ? { node: '14' } : undefined,
+        targets: opts.target === "node" ? { node: "14" } : undefined,
         extractErrors: opts.extractErrors,
         format: opts.format,
       })({
-        exclude: 'node_modules/**',
-        extensions: [...DEFAULT_BABEL_EXTENSIONS, 'ts'],
-        babelHelpers: 'runtime',
+        exclude: "node_modules/**",
+        extensions: [...DEFAULT_BABEL_EXTENSIONS, "ts"],
+        babelHelpers: "runtime",
       }),
       opts.env !== undefined
         ? replace({
-            'process.env.NODE_ENV': JSON.stringify(opts.env),
+            "process.env.NODE_ENV": JSON.stringify(opts.env),
             preventAssignment: true,
           })
         : undefined,
@@ -169,7 +167,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
               ) => {
                 const text = comment.value;
                 const type = comment.type;
-                return type == 'comment2'
+                return type == "comment2"
                   ? /@preserve|@license|@cc_on/i.test(text)
                   : false;
               },
@@ -180,9 +178,28 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
               passes: 10,
             },
             ecma: 2015,
-            toplevel: opts.format === 'cjs',
+            toplevel: opts.format === "cjs",
           } as MinifyOptions)
         : undefined,
-    ].filter((plugin) => typeof plugin !== 'undefined' && plugin !== null),
+      // Copy typescript types declaration files to .d.mts for module files
+      copyTypeDeclarations
+        ? copy({
+            targets: [
+              // TypeScript requires 2 distinct files for ESM and CJS types. See:
+              // https://devblogs.microsoft.com/typescript/announcing-typescript-4-7/
+              // https://github.com/gxmari007/vite-plugin-eslint/pull/60
+              // Copy for ESM types is made in CJS bundle to ensure the declaration file generated in
+              // the previous bundle exists.
+              {
+                src: "dist/types/index.d.ts",
+                dest: "dist/types/",
+                rename: "index.d.mts",
+              },
+            ],
+            verbose: true,
+            copyOnce: true,
+          })
+        : undefined,
+    ].filter((plugin) => typeof plugin !== "undefined" && plugin !== null),
   } as RollupOptions;
 }
