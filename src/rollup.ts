@@ -12,6 +12,7 @@ import { appDist, tsconfigJson } from './constants';
 import { babelPlugin } from './rollup-plugin-config-helpers';
 import { BuildOptions } from './types';
 import { MinifyOptions } from 'terser';
+import copy from 'rollup-plugin-copy';
 
 const shebang: { [index: string]: any } = {};
 
@@ -75,6 +76,12 @@ export async function createRollupConfig(opts: BuildOptions, index: number) {
       resolve({
         mainFields,
         extensions: [...DEFAULTS.extensions],
+      }),
+      // Copy typescript types declaration files to .d.mts for module files
+      copy({
+        targets: [
+          { src: 'dist/types/index.d.ts', dest: 'dist/types/index.d.mts' }
+        ]
       }),
       // all bundled external modules need to be converted from CJS to ESM
       commonjs({
