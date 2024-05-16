@@ -25,7 +25,7 @@ export const template = {
     typings: `dist/types/index.d.ts`,
     files: ["dist/**/*"],
     engines: {
-      node: ">=14",
+      node: ">=16",
     },
     scripts: {
       build: "ts-build build",
