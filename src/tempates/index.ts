@@ -32,7 +32,6 @@ export const template = {
       lint: "ts-build lint",
       prepare: "git config core.hookspath .githooks && ts-build build",
       size: "size-limit",
-      analyze: "size-limit --why",
       test: "jest",
       prettier: "prettier --write src/**/*",
     },
