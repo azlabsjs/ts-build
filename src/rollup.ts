@@ -195,6 +195,7 @@ export async function createRollupConfig(
             ],
             verbose: true,
             copyOnce: true,
+            copySync: true
           })
         : undefined,
     ].filter((plugin) => typeof plugin !== "undefined" && plugin !== null),
