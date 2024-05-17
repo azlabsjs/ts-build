@@ -1,31 +1,31 @@
 #!/usr/bin/env node
 
-import chalk from 'chalk';
-import sade from 'sade';
-const pkg = require('../../package.json');
-const prog = sade('ts-build');
-import fs from 'fs-extra';
-import path from 'path';
+import chalk from "chalk";
+import sade from "sade";
+const pkg = require("../../package.json");
+const prog = sade("ts-build");
+import fs from "fs-extra";
+import path from "path";
 import {
   composePackageJson,
   createProjectStructure,
   template as TemplateConfig,
-} from './tempates';
-import semver from 'semver';
-import * as Messages from './messages';
-import { logError } from './logger';
-import child_process from 'child_process';
-import TsBuild from './builder';
+} from "./tempates";
+import semver from "semver";
+import * as Messages from "./messages";
+import { logError } from "./logger";
+import child_process from "child_process";
+import TsBuild from "./builder";
 import getInstallArgs, {
   createPackageName,
   getAuthorName,
   getInstallCmd,
   getNodeEngineRequirement,
-} from './helpers';
-import { readFileSync } from 'jsonfile';
-import { appRoot, packageJson } from './constants';
-import { createLinter, getErrorResultCount, outputfix } from './lint';
-import { createProgressEstimator } from './progress-estimator';
+} from "./helpers";
+import { readFileSync } from "jsonfile";
+import { appRoot, packageJson } from "./constants";
+import { createLinter, getErrorResultCount, outputfix } from "./lint";
+import { createProgressEstimator } from "./progress-estimator";
 
 // Define globals
 let appPackageJson: { [index: string]: any } = {};
@@ -46,9 +46,9 @@ if (fs.existsSync(packageJson)) {
 
 prog
   .version(pkg.version)
-  .command('create <pkg>')
-  .describe('Create a new package with ts-build')
-  .example('create mypackage')
+  .command("create <pkg>")
+  .describe("Create a new package with ts-build")
+  .example("create mypackage")
   .action(async (pkg: string, opts: any) => {
     Log(`Creating ${chalk.bold.green(pkg)}...`);
     // Helper fn to prompt the user for a different
@@ -73,15 +73,15 @@ prog
       createProjectStructure(projectPath);
 
       let license: string = await fs.readFile(
-        path.resolve(projectPath, 'LICENSE'),
-        { encoding: 'utf-8' }
+        path.resolve(projectPath, "LICENSE"),
+        { encoding: "utf-8" }
       );
 
       license = license.replace(/<year>/, `${new Date().getFullYear()}`);
-      license = license.replace(/<author>/, author ?? '');
+      license = license.replace(/<author>/, author ?? "");
 
-      await fs.writeFile(path.resolve(projectPath, 'LICENSE'), license, {
-        encoding: 'utf-8',
+      await fs.writeFile(path.resolve(projectPath, "LICENSE"), license, {
+        encoding: "utf-8",
       });
 
       const generatePackageJson = composePackageJson(TemplateConfig);
@@ -93,14 +93,14 @@ prog
 
       const nodeVersionReq = getNodeEngineRequirement(pkgJson);
       if (
-        typeof nodeVersionReq === 'string' &&
+        typeof nodeVersionReq === "string" &&
         !semver.satisfies(process.version, nodeVersionReq)
       ) {
         Log(Messages.incorrectNodeVersion(nodeVersionReq));
         process.exit(1);
       }
 
-      await fs.outputJSON(path.resolve(projectPath, 'package.json'), pkgJson);
+      await fs.outputJSON(path.resolve(projectPath, "package.json"), pkgJson);
       Log(`Created ${chalk.bold.green(pkg)}`);
       await Messages.start(pkg);
     } catch (error) {
@@ -112,7 +112,7 @@ prog
     Log(Messages.installing(deps.sort()));
     try {
       const cmd = await getInstallCmd();
-      const dependencies = getInstallArgs(cmd, deps).join(' '); //
+      const dependencies = getInstallArgs(cmd, deps).join(" "); //
       const estimator = createProgressEstimator();
       await estimator(
         new Promise<void>((resolve, error) => {
@@ -123,79 +123,83 @@ prog
             resolve();
           });
         }),
-        'Installing Please wait...'
+        "Installing Please wait..."
       );
       Log(await Messages.start(pkg));
     } catch (error) {
-      Log('Failed to install dependencies');
+      Log("Failed to install dependencies");
       logError(error);
       process.exit(1);
     }
   });
 
 prog
-  .command('build')
-  .describe('Build your project once and exit')
-  .option('--entry, -i', 'Entry module')
-  .example('build --entry src/foo.tsx')
-  .option('--target', 'Specify your target environment', 'browser')
-  .example('build --target node')
-  .option('--name', 'Specify name exposed in UMD builds')
-  .example('build --name Foo')
-  .option('--format', 'Specify module format(s)', 'cjs,esm')
-  .example('build --format cjs,esm')
-  .option('--tsconfig', 'Specify custom tsconfig path')
-  .example('build --tsconfig ./tsconfig.foo.json')
-  .option('--transpileOnly', 'Skip type checking')
-  .example('build --transpileOnly')
-  .option('--external', 'List of external modules')
-  .example('build --external lodash,conf')
-  .option('--inlineDynamicImports', 'Rollup should inline dynamic imports', true)
-  .example('build --inlineDynamicImports')
+  .command("build")
+  .describe("Build your project once and exit")
+  .option("--entry, -i", "Entry module")
+  .example("build --entry src/foo.tsx")
+  .option("--target", "Specify your target environment", "browser")
+  .example("build --target node")
+  .option("--name", "Specify name exposed in UMD builds")
+  .example("build --name Foo")
+  .option("--format", "Specify module format(s)", "cjs,esm")
+  .example("build --format cjs,esm")
+  .option("--tsconfig", "Specify custom tsconfig path")
+  .example("build --tsconfig ./tsconfig.foo.json")
+  .option("--transpileOnly", "Skip type checking")
+  .example("build --transpileOnly")
+  .option("--external", "List of external modules")
+  .example("build --external lodash,conf")
   .option(
-    '--extractErrors',
-    'Extract errors to ./errors/codes.json and provide a url for decoding.'
+    "--inlineDynamicImports",
+    "Rollup should inline dynamic imports",
+    true
+  )
+  .example("build --inlineDynamicImports")
+  .option(
+    "--extractErrors",
+    "Extract errors to ./errors/codes.json and provide a url for decoding."
   )
   .example(
-    'build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant='
+    "build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant="
   )
   .action(async (options) =>
     new TsBuild(
       options,
-      appPackageJson['name'],
-      appPackageJson['source']
+      appPackageJson["name"],
+      appPackageJson["source"]
     ).compile()
   );
 
 prog
-  .command('lint')
-  .describe('Run eslint on the current project')
-  .example('lint src test')
-  .option('--fix', 'Fixes fixable errors and warnings')
-  .example('lint src test --fix')
-  .option('--ignore-pattern', 'Ignore a pattern')
-  .example('lint src test --ignore-pattern test/foobar.ts')
-  .example('lint src test --max-warnings 10')
-  .option('--write-file', 'Write the config file locally')
-  .example('lint --write-file')
-  .option('--report-file', 'Write json report to file locally')
-  .example('lint --report-file eslint-report.json')
+  .command("lint")
+  .describe("Run eslint on the current project")
+  .example("lint src test")
+  .option("--fix", "Fixes fixable errors and warnings")
+  .example("lint src test --fix")
+  .option("--ignore-pattern", "Ignore a pattern")
+  .example("lint src test --ignore-pattern test/foobar.ts")
+  .example("lint src test --max-warnings 10")
+  .option("--write-file", "Write the config file locally")
+  .example("lint --write-file")
+  .option("--report-file", "Write json report to file locally")
+  .example("lint --report-file eslint-report.json")
   .action(
     async (options: {
       fix: boolean;
-      'ignore-pattern': string;
-      'write-file': boolean;
-      'report-file': string;
+      "ignore-pattern": string;
+      "write-file": boolean;
+      "report-file": string;
       _: string[];
     }) => {
-      if (options['_'].length === 0 && !options['write-file']) {
-        const inputs = ['src'].filter(fs.existsSync);
-        options['_'] = inputs.map((path_: string) =>
-          path_.endsWith('/') ? path_ : path_.concat('/')
+      if (options["_"].length === 0 && !options["write-file"]) {
+        const inputs = ["src"].filter(fs.existsSync);
+        options["_"] = inputs.map((path_: string) =>
+          path_.endsWith("/") ? path_ : path_.concat("/")
         );
         Log(
           chalk.yellow(
-            `Excuting linter on default paths "${inputs.join(' ')}"`,
+            `Excuting linter on default paths "${inputs.join(" ")}"`,
             '\nTo change this behaviour, change your lint script in your package.json to "lint": "ts-build lint src examples" where example is the other directories'
           )
         );
@@ -203,25 +207,25 @@ prog
 
       const linter = createLinter({
         rootDir: appRoot,
-        write: options['write-file'],
+        write: options["write-file"],
       })(
         {
-          ...(appPackageJson['eslint'] ?? {}),
-          ignorePattern: options['ignore-pattern'],
+          ...(appPackageJson["eslint"] ?? {}),
+          ignorePattern: options["ignore-pattern"],
         },
         {
           fix: options.fix,
         }
       );
-      const results = await linter.lintFiles(options['_']);
+      const results = await linter.lintFiles(options["_"]);
       if (options.fix) {
         await outputfix(results);
       }
       Log((await linter.loadFormatter()).format(results));
-      if (options['report-file']) {
+      if (options["report-file"]) {
         await fs.outputFile(
-          options['report-file'],
-          (await linter.loadFormatter('json')).format(results)
+          options["report-file"],
+          (await linter.loadFormatter("json")).format(results) as string
         );
       }
       if (getErrorResultCount(results) !== 0) {

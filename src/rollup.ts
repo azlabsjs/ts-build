@@ -88,6 +88,7 @@ export async function createRollupConfig(
           opts.format === "umd"
             ? /\/node_modules\//
             : /\/regenerator-runtime\//,
+        requireReturnsDefault: "auto",
       }),
       json(),
       {
