@@ -144,7 +144,7 @@ export async function createRollupConfig(
         useTsconfigDeclarationDir: Boolean(tsCompilerOptions?.declarationDir),
       }),
       babelPlugin({
-        targets: opts.target === "node" ? { node: "14" } : undefined,
+        targets: opts.target === "node" ? { node: "16" } : undefined,
         extractErrors: opts.extractErrors,
         format: opts.format,
       })({
