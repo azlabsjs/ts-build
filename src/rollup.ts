@@ -84,11 +84,7 @@ export async function createRollupConfig(
       // all bundled external modules need to be converted from CJS to ESM
       commonjs({
         // use a regex to make sure to include eventual hoisted packages
-        include:
-          opts.format === "umd"
-            ? /\/node_modules\//
-            : /\/regenerator-runtime\//,
-        requireReturnsDefault: "auto",
+        include: /\/node_modules\//
       }),
       json(),
       {

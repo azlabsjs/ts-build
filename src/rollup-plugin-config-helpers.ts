@@ -1,5 +1,5 @@
 import { ConfigItem, createConfigItem } from '@babel/core';
-import { createBabelInputPluginFactory } from '@rollup/plugin-babel';
+import { RollupBabelCustomInputPlugin, createBabelInputPluginFactory } from '@rollup/plugin-babel';
 import { isTruthy, merge } from './helpers';
 
 // replace lodash with lodash-es, but not lodash/fp
@@ -71,7 +71,7 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
             method: 'usage-pure',
           },
           {
-            name: '@babel/plugin-proposal-class-properties',
+            name: '@babel/plugin-transform-class-properties',
             loose: true,
           },
         ];
@@ -149,5 +149,5 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
 
         return babelOptions;
       },
-    };
+    } as RollupBabelCustomInputPlugin;
   });
