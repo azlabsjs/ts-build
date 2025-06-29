@@ -22,13 +22,14 @@ const mergeConfigItems = (
   type: "preset" | "plugin",
   ...configItemsToMerge: ConfigItem[][]
 ) => {
+
   const mergedItems: ConfigItem[] = [];
 
   configItemsToMerge.forEach((configItemToMerge) => {
     configItemToMerge.forEach((item) => {
       const itemToMergeWithIndex = mergedItems.findIndex(
         (mergedItem) =>
-          Boolean(mergedItem.file?.resolved) === Boolean(item.file?.resolved)
+          mergedItem.file?.resolved === item.file?.resolved
       );
 
       if (itemToMergeWithIndex === -1) {
@@ -37,7 +38,7 @@ const mergeConfigItems = (
       }
       mergedItems[itemToMergeWithIndex] = createConfigItem(
         [
-          Boolean(mergedItems[itemToMergeWithIndex].file?.resolved),
+          mergedItems[itemToMergeWithIndex].file?.resolved,
           merge(mergedItems[itemToMergeWithIndex].options, item.options),
         ],
         {

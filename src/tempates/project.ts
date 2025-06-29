@@ -16,8 +16,6 @@ const tsconfig = `
       "module": "esnext",
       "lib": ["dom", "esnext"],
       "importHelpers": true,
-      // output .d.ts declaration files for consumers
-      "declaration": true,
       // output .js.map sourcemap files for consumers
       "sourceMap": true,
       // match output dir to input dir. e.g. dist/index instead of dist/src/index
@@ -40,9 +38,7 @@ const tsconfig = `
       "skipLibCheck": true,
       // error out if import and file system have a casing mismatch. Recommended by TS
       "forceConsistentCasingInFileNames": true,
-      "noEmit": true,
-      // Directory where typescript output declaration files
-      "declarationDir": "./dist/types"
+      "noEmit": true
     }
   }
 `;

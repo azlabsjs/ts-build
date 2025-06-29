@@ -12,6 +12,7 @@ import { babelPlugin } from "./rollup-plugin-config-helpers";
 import { BuildOptions } from "./types";
 import { MinifyOptions } from "terser";
 import copy from "rollup-plugin-copy";
+import path from "path";
 
 const shebang: { [index: string]: unknown } = {};
 
@@ -20,17 +21,20 @@ export async function createRollupConfig(
   index: number,
   copyTypeDeclarations: boolean
 ) {
-  const shouldMinify =
+  const minify =
     opts.minify !== undefined ? opts.minify : opts.env === "production";
+
   // Defines the output file extension based on the specified output format
   const extension = opts.format === "esm" ? "mjs" : "cjs";
-  const outputName = [
+  // Paths configuration values
+  const paths = [
     `${appDist}/${opts.format}/index`,
-    shouldMinify ? "min" : "",
+    minify ? "min" : "",
     extension,
-  ]
-    .filter(Boolean)
-    .join(".");
+  ];
+  const basename = path.basename(appDist);
+  const name = paths.filter(Boolean).join(".");
+  const tsCompilerDeclarationDir = `./${basename}/${opts.format}/types`;
 
   const mainFields = ["module", "main"];
   if (opts.target !== "node") {
@@ -38,8 +42,10 @@ export async function createRollupConfig(
   }
 
   const tsconfigPath = tsconfigJson;
+
   // borrowed from https://github.com/facebook/create-react-app/pull/7248
   const tsconfigJSON = ts.readConfigFile(tsconfigPath, ts.sys.readFile).config;
+
   // borrowed from https://github.com/ezolenko/rollup-plugin-typescript2/blob/42173460541b0c444326bf14f2c8c27269c4cb11/src/parse-tsconfig.ts#L48
   const tsCompilerOptions = ts.parseJsonConfigFileContent(
     tsconfigJSON,
@@ -57,7 +63,7 @@ export async function createRollupConfig(
     // Establish Rollup output
     output: {
       // Set filenames of the consumer's package
-      file: outputName,
+      file: name,
       // Pass through the file format
       format: opts.format,
       // Do not let Rollup call Object.freeze() on namespace import objects
@@ -75,7 +81,6 @@ export async function createRollupConfig(
     // As babel plugin configuration is using `runtime` as value
     external: ["@babel/runtime", ...(opts.external ?? [])],
     plugins: [
-      // peerDepsExternal(),
       resolve({
         mainFields,
         extensions: [...DEFAULTS.extensions],
@@ -116,7 +121,7 @@ export async function createRollupConfig(
           "**/*.test.ts",
           "**/*.spec.tsx",
           "**/*.test.tsx",
-          
+
           // TS defaults below
           "node_modules",
           "bower_components",
@@ -130,8 +135,8 @@ export async function createRollupConfig(
           ...(index > 0 ? { declaration: false, declarationMap: false } : {}),
           // Example: If you want to force checkJs
           checkJs: !opts.transpileOnly && index === 0,
-          declaration: Boolean(tsCompilerOptions?.declarationDir), // Make sure declaration is enabled if you want .d.ts files
-          // declarationDir: './dist/types', // Specify declaration output dir here or in tsconfig.json
+          declaration: true, // make sure declaration is enabled if you want .d.ts files
+          declarationDir: tsCompilerDeclarationDir, // specify declaration output dir here or in tsconfig.json
         },
       }),
       babelPlugin({
@@ -149,7 +154,7 @@ export async function createRollupConfig(
             preventAssignment: true,
           })
         : undefined,
-      shouldMinify
+      minify
         ? terser({
             sourceMap: true,
             output: {
@@ -180,8 +185,7 @@ export async function createRollupConfig(
               // TypeScript requires 2 distinct files for ESM and CJS types. See:
               // https://devblogs.microsoft.com/typescript/announcing-typescript-4-7/
               // https://github.com/gxmari007/vite-plugin-eslint/pull/60
-              // Copy for ESM types is made in CJS bundle to ensure the declaration file generated in
-              // the previous bundle exists.
+              // Copy for ESM types is made in CJS bundle to ensure the declaration file generated in the previous bundle exists.
               {
                 src: "dist/types/index.d.ts",
                 dest: "dist/types/",
