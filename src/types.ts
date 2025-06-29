@@ -1,20 +1,20 @@
 interface SharedOpts {
   // JS target
-  target: 'node' | 'browser';
+  target: "node" | "browser";
   // Path to tsconfig file
   tsconfig?: string;
   // Is error extraction running?
   extractErrors?: boolean;
 }
 
-export type ModuleFormat = 'cjs' | 'umd' | 'esm' | 'system';
+export type ModuleFormat = "cjs" | "umd" | "esm" | "system";
 
 export interface BuildOpts extends SharedOpts {
   name?: string;
   entry?: string | string[];
-  format: 'cjs,esm';
-  target: 'browser';
-  external?: string|string[];
+  format: "cjs,esm";
+  target: "browser";
+  external?: string | string[];
   inlineDynamicImports?: boolean;
 }
 
@@ -28,7 +28,7 @@ export interface WatchOpts extends BuildOpts {
 }
 
 export interface NormalizedOpts
-  extends Omit<WatchOpts, 'name' | 'input' | 'format'> {
+  extends Omit<WatchOpts, "name" | "input" | "format"> {
   name: string;
   input: string[];
   format: ModuleFormat[];
@@ -40,7 +40,7 @@ export interface BuildOptions extends SharedOpts {
   // path to file
   input: string;
   // Environment
-  env: 'development' | 'production';
+  env: "development" | "production";
   // Module format
   format: ModuleFormat;
   // Is minifying?
@@ -49,18 +49,27 @@ export interface BuildOptions extends SharedOpts {
   writeMeta?: boolean;
   // Only transpile, do not type check (makes compilation faster)
   transpileOnly?: boolean;
-  external?: string|string[];
+  external?: string | string[];
   inlineDynamicImports?: boolean;
 }
 
 export interface PackageJson {
   name: string;
-  source?: string;
-  jest?: any;
-  eslint?: any;
+  source: string;
+  jest?: unknown;
+  eslint?: unknown;
+  version: string;
   dependencies?: { [packageName: string]: string };
   devDependencies?: { [packageName: string]: string };
   engines?: {
     node?: string;
   };
 }
+
+export type ErrorType = Error & {
+  error?: ErrorType;
+  plugin?: string;
+  loc?: { line: number; file: string; column: number | string };
+  frame: unknown[];
+  stack: string;
+};

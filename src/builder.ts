@@ -1,22 +1,22 @@
 import { normalizeOpts, writeEntryFile } from "./helpers";
 import { appDist } from "./constants";
 import { createProgressEstimator } from "./progress-estimator";
-import { rollup } from "rollup";
+import { rollup, RollupOptions } from "rollup";
 import { logError } from "./logger";
 import { concatAllArray } from "./helpers";
 import { createRollupConfig } from "./rollup";
-import { BuildOptions, BuildOpts, NormalizedOpts } from "./types";
+import { BuildOptions, BuildOpts, ErrorType, NormalizedOpts } from "./types";
 import fs from "fs";
 import { appConfig } from "./constants";
 
 let configurations = {
-  rollup(config: { [index: string]: any }) {
+  rollup(config: RollupOptions) {
     return config;
   },
 };
 
 if (fs.existsSync(appConfig)) {
-  configurations = require(appConfig);
+  import(appConfig).then((values) => (configurations = values));
 }
 
 export async function createBuildConfigs(opts: NormalizedOpts) {
@@ -29,18 +29,18 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
         writeMeta: index === 0,
       }))
     )
-  );
+  ) as BuildOptions[];
   return await Promise.all(
     inputs.map(async (options, index) => {
       const config = await createRollupConfig(
         options,
         index,
         // We only copy typescrit declaration files if we are on the
-        // second iteration, and options.format includes esm module builds as `createAllFormats` 
+        // second iteration, and options.format includes esm module builds as `createAllFormats`
         // will generates builds for esm module
         // This make sure that typescript files are emitted at least once before we attempt to copy
         // its declaration files
-        inputs.length > 1 && index === 1 && opts.format.includes('esm')
+        inputs.length > 1 && index === 1 && opts.format.includes("esm")
       );
       return configurations.rollup(config);
     })
@@ -124,7 +124,16 @@ export default class TsBuild {
       const promise = Promise.all(
         buildConfigs.map(async (options) => {
           const bundle = await rollup(options);
-          await bundle.write(options.output);
+          if (!options.output) {
+            return;
+          }
+          if (Array.isArray(options.output)) {
+            for await (const item of options.output) {
+              bundle.write(item);
+            }
+          } else {
+            await bundle.write(options.output);
+          }
         })
       ).catch((e) => {
         throw e;
@@ -132,7 +141,7 @@ export default class TsBuild {
       logger(promise, "Building modules");
       await promise;
     } catch (error) {
-      logError(error);
+      logError(error as ErrorType);
       process.exit(1);
     }
   }

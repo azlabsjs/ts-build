@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 const gitignore = `
 *.log
@@ -127,7 +127,7 @@ jobs:
     runs-on: \${{ matrix.os }}
     strategy:
       matrix:
-        node: ['16.x', '18.x', '20.x']
+        node: ['16.x', '18.x', '20.x', '22.x']
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
@@ -226,29 +226,29 @@ jobs:
 `;
 
 const esLintConfig = `
-{
-  "root": true,
-  "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-      "project": [
-          "./tsconfig.json"
-      ]
-  },
-  "plugins": [
-      "@typescript-eslint"
-  ],
-  "rules": {
-      "@typescript-eslint/no-explicit-any": 0
-  },
-  "ignorePatterns": [
-      "src/**/*.test.ts",
-      "src/frontend/generated/*"
-  ]
-}
+// @ts-check
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
+  {
+    ignores: [
+      "test/**/*.test.ts", // ignore test files in 'test' directory
+      "test/**/*.spec.ts", // ignore test files in 'test' directory
+      "src/**/*.test.ts", // ignore test files
+      "dist/", // Ignore the entire 'dist' directory
+      "build/", // Ignore the entire 'build' directory
+      "lib/", // Ignore entire 'lib' directory
+      "node_modules/", // Typically ignored by default, but good to be explicit
+      "coverage/", // Ignore test coverage reports
+      "**/*.d.ts", // Ignore all TypeScript declaration files
+      ".config/*.js", // Ignore specific JS config files
+      "custom-ignore-file.js", // Ignore a specific file
+    ],
+  }
+);
 `;
 
 const babelConfig = `
@@ -263,17 +263,6 @@ const babelConfig = `
 }
 `;
 
-const bettererConfig = `
-import { typescript } from '@betterer/typescript';
-
-export default {
-  'stricter compilation': () =>
-    typescript('./tsconfig.json', {
-      strict: true,
-    }).include('./src/**/*.ts'),
-};
-`;
-
 const lintStagedConfig = `
 module.exports = {
   '*.{ts,js}': ['prettier --write', 'eslint --fix'],
@@ -285,7 +274,6 @@ module.exports = {
 const precommitHook = `
 #!/bin/sh
 
-npx betterer precommit
 npx lint-staged
 ts-build build
 `;
@@ -296,7 +284,7 @@ const npmrcConfigForTsBuild = `
 `;
 
 const writeContent = (path_: string, content: string) => {
-  fs.open(path_, 'w+', (err, fd) => {
+  fs.open(path_, "w+", (err, fd) => {
     if (err) {
       throw new Error(err.message);
     }
@@ -313,65 +301,48 @@ export const createProjectStructure = (path_: string) => {
     fs.mkdirSync(path_, { recursive: true });
   }
 
-  // TODO : CREATE THE .gitignore
-  writeContent(path.join(path_, '.gitignore'), gitignore);
+  writeContent(path.join(path_, ".gitignore"), gitignore);
 
-  // TODO : CREATE THE tsconfig
-  writeContent(path.join(path_, 'tsconfig.json'), tsconfig);
+  writeContent(path.join(path_, "tsconfig.json"), tsconfig);
 
-  // TODO : CREATE THE README
-  writeContent(path.join(path_, 'README.md'), readme);
+  writeContent(path.join(path_, "README.md"), readme);
 
-  // TODO : CREATE LICENSE
-  writeContent(path.join(path_, 'LICENSE'), licence);
+  writeContent(path.join(path_, "LICENSE"), licence);
 
-  // TODO : ADD eslintrc configurations
-  writeContent(path.join(path_, '.eslintrc.json'), esLintConfig);
+  writeContent(path.join(path_, "eslint.config.mjs"), esLintConfig);
 
-  // TODO : ADD eslintrc jest.config.js
-  writeContent(path.join(path_, 'jest.config.js'), jestConfig);
+  writeContent(path.join(path_, "jest.config.js"), jestConfig);
 
-  // TODO : ADD .babelrc configurations
-  writeContent(path.join(path_, '.babelrc'), babelConfig);
+  writeContent(path.join(path_, ".babelrc"), babelConfig);
 
-  // TODO : CREATE TEST FILES
-  if (!fs.existsSync(path.join(path_, 'tests'))) {
-    fs.mkdirSync(path.join(path_, 'tests'), { recursive: true });
+  if (!fs.existsSync(path.join(path_, "tests"))) {
+    fs.mkdirSync(path.join(path_, "tests"), { recursive: true });
   }
-  writeContent(path.join(path_, 'tests', 'index.spec.ts'), test);
+  writeContent(path.join(path_, "tests", "index.spec.ts"), test);
 
-  // TODO : CREATE SCRIPT FILES
-  if (!fs.existsSync(path.join(path_, 'src'))) {
-    fs.mkdirSync(path.join(path_, 'src'), { recursive: true });
+  if (!fs.existsSync(path.join(path_, "src"))) {
+    fs.mkdirSync(path.join(path_, "src"), { recursive: true });
   }
-  writeContent(path.join(path_, 'src', 'index.ts'), defaultScript);
+  writeContent(path.join(path_, "src", "index.ts"), defaultScript);
 
-  // TODO : CREATE GIT FLOW FILES
-  if (!fs.existsSync(path.join(path_, '.github', 'workflows'))) {
-    fs.mkdirSync(path.join(path_, '.github', 'workflows'), { recursive: true });
+  if (!fs.existsSync(path.join(path_, ".github", "workflows"))) {
+    fs.mkdirSync(path.join(path_, ".github", "workflows"), { recursive: true });
   }
   writeContent(
-    path.join(path_, '.github', 'workflows', 'main.yml'),
+    path.join(path_, ".github", "workflows", "main.yml"),
     gitflowMain
   );
   writeContent(
-    path.join(path_, '.github', 'workflows', 'size.yml'),
+    path.join(path_, ".github", "workflows", "size.yml"),
     gitflowSize
   );
 
-  // GIT PRE-COMMIT FILES
-  if (!fs.existsSync(path.join(path_, '.githooks'))) {
-    fs.mkdirSync(path.join(path_, '.githooks'), { recursive: true });
+  if (!fs.existsSync(path.join(path_, ".githooks"))) {
+    fs.mkdirSync(path.join(path_, ".githooks"), { recursive: true });
   }
-  // TODO : CREATE PRE-COMMIT HOOKS FILES
-  writeContent(path.join(path_, '.githooks', 'pre-commit'), precommitHook);
+  writeContent(path.join(path_, ".githooks", "pre-commit"), precommitHook);
 
-  // TODO : CREATE BETTERER CONFIG FILES
-  writeContent(path.join(path_, '.betterer.ts'), bettererConfig);
+  writeContent(path.join(path_, "lint-staged.config.js"), lintStagedConfig);
 
-  // TODO : CREATE LINT STAGED CONFIG FILES
-  writeContent(path.join(path_, 'lint-staged.config.js'), lintStagedConfig);
-
-  // TODO : CREATE NPMRC CONFIG FILES
-  writeContent(path.join(path_, '.npmrc'), npmrcConfigForTsBuild);
+  writeContent(path.join(path_, ".npmrc"), npmrcConfigForTsBuild);
 };

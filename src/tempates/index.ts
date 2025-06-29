@@ -1,3 +1,5 @@
+import { Template } from "./types";
+
 export const template = {
   name: "basic",
   dependencies: [
@@ -11,10 +13,12 @@ export const template = {
     "ts-jest",
     "@types/jest",
     "jest-watch-typeahead",
-    "@typescript-eslint/parser",
-    "@typescript-eslint/eslint-plugin",
     "prettier",
     "@babel/runtime",
+    "@eslint/js",
+    "eslint",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser"
   ],
   packageJson: {
     version: "0.1.0",
@@ -58,8 +62,8 @@ export const template = {
         },
       },
     },
-  } as { [index: string]: any },
-} as { [index: string]: any };
+  },
+} as Template;
 
 export { composePackageJson } from "./helpers";
 export { createProjectStructure } from "./project";

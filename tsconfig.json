@@ -39,5 +39,6 @@
     "resolveJsonModule": true,
     // Where typescript should output declaration files
     "declarationDir": "lib/types"
+    // "resolvePackageJsonImports": true
   }
 }
