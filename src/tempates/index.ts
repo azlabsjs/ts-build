@@ -29,7 +29,7 @@ export const template = {
     typings: `dist/types/index.d.ts`,
     files: ["dist/**/*"],
     engines: {
-      node: ">=16",
+      node: ">=18",
     },
     scripts: {
       build: "ts-build build",
