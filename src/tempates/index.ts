@@ -25,8 +25,8 @@ export const template = {
     license: "MIT",
     main: "dist/index.js",
     module: `dist/esm/index.mjs`,
-    types: "dist/types/index.d.mts",
-    typings: "dist/types/index.d.mts",
+    types: "dist/types/index.d.ts",
+    typings: "dist/types/index.d.ts",
     files: ["dist/**/*"],
     engines: {
       node: ">=18",

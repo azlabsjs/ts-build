@@ -189,7 +189,7 @@ export async function createRollupConfig(
               {
                 src: `${tsCompilerDeclarationDir}/index.d.ts`,
                 dest: "dist/types/",
-                rename: "index.d.mts",
+                rename: "index.d.ts",
               },
             ],
             verbose: true,
