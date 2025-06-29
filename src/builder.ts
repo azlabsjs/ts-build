@@ -34,13 +34,7 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
     inputs.map(async (options, index) => {
       const config = await createRollupConfig(
         options,
-        index,
-        // We only copy typescrit declaration files if we are on the
-        // second iteration, and options.format includes esm module builds as `createAllFormats`
-        // will generates builds for esm module
-        // This make sure that typescript files are emitted at least once before we attempt to copy
-        // its declaration files
-        inputs.length > 1 && index === 1 && opts.format.includes("esm")
+        index
       );
       return configurations.rollup(config);
     })

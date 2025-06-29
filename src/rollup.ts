@@ -11,16 +11,11 @@ import { appDist, tsconfigJson } from "./constants";
 import { babelPlugin } from "./rollup-plugin-config-helpers";
 import { BuildOptions } from "./types";
 import { MinifyOptions } from "terser";
-import copy from "rollup-plugin-copy";
 import path from "path";
 
 const shebang: { [index: string]: unknown } = {};
 
-export async function createRollupConfig(
-  opts: BuildOptions,
-  index: number,
-  copyTypeDeclarations: boolean
-) {
+export async function createRollupConfig(opts: BuildOptions, index: number) {
   const minify =
     opts.minify !== undefined ? opts.minify : opts.env === "production";
 
@@ -177,26 +172,6 @@ export async function createRollupConfig(
             ecma: 2015,
             toplevel: opts.format === "cjs",
           } as MinifyOptions)
-        : undefined,
-      // Copy typescript types declaration files to .d.mts for module files
-      copyTypeDeclarations
-        ? copy({
-            targets: [
-              // TypeScript requires 2 distinct files for ESM and CJS types. See:
-              // https://devblogs.microsoft.com/typescript/announcing-typescript-4-7/
-              // https://github.com/gxmari007/vite-plugin-eslint/pull/60
-              // Copy for ESM types is made in CJS bundle to ensure the declaration file generated in the previous bundle exists.
-              {
-                src: `${tsCompilerDeclarationDir}/index.d.ts`,
-                dest: "dist/types/",
-                rename: "index.d.ts",
-              },
-            ],
-            verbose: true,
-            copyOnce: true,
-            copySync: true,
-            hook: "writeBundle",
-          })
         : undefined,
     ].filter((plugin) => typeof plugin !== "undefined" && plugin !== null),
   } as RollupOptions;
