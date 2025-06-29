@@ -1,4 +1,5 @@
 // @ts-check
+import 'structured-clone-polyfill'; // Add this line at the very top
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 

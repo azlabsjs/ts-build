@@ -53,6 +53,7 @@
     "rollup-plugin-typescript2": "^0.36.0",
     "sade": "^1.8.1",
     "semver": "^7.7.2",
+    "structured-clone-polyfill": "^0.0.2",
     "tiny-glob": "^0.2.9",
     "typescript-eslint": "^8.35.0"
   },
