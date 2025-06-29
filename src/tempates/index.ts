@@ -18,15 +18,15 @@ export const template = {
     "@eslint/js",
     "eslint",
     "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser"
+    "@typescript-eslint/parser",
   ],
   packageJson: {
     version: "0.1.0",
     license: "MIT",
     main: "dist/index.js",
     module: `dist/esm/index.mjs`,
-    types: `dist/types/index.d.ts`,
-    typings: `dist/types/index.d.ts`,
+    types: "dist/types/index.d.mts",
+    typings: "dist/types/index.d.mts",
     files: ["dist/**/*"],
     engines: {
       node: ">=18",
@@ -53,11 +53,13 @@ export const template = {
     exports: {
       ".": {
         import: {
-          types: "./dist/types/index.d.mts",
+          types: "./dist/esm/index.d.ts",
+          typings: "./dist/esm/index.d.ts",
           default: "./dist/esm/index.mjs",
         },
         require: {
-          types: "./dist/types/index.d.ts",
+          types: "./dist/cjs/index.d.ts",
+          typings: "./dist/cjs/index.d.ts",
           default: "./dist/cjs/index.cjs",
         },
       },

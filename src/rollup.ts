@@ -34,7 +34,7 @@ export async function createRollupConfig(
   ];
   const basename = path.basename(appDist);
   const name = paths.filter(Boolean).join(".");
-  const tsCompilerDeclarationDir = `./${basename}/${opts.format}/types`;
+  const tsCompilerDeclarationDir = `./${basename}/${opts.format}`;
 
   const mainFields = ["module", "main"];
   if (opts.target !== "node") {
@@ -187,7 +187,7 @@ export async function createRollupConfig(
               // https://github.com/gxmari007/vite-plugin-eslint/pull/60
               // Copy for ESM types is made in CJS bundle to ensure the declaration file generated in the previous bundle exists.
               {
-                src: "dist/types/index.d.ts",
+                src: `${tsCompilerDeclarationDir}/index.d.ts`,
                 dest: "dist/types/",
                 rename: "index.d.mts",
               },
