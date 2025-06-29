@@ -4,97 +4,16 @@ import json from "@rollup/plugin-json";
 import resolve, { DEFAULTS } from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import { RollupOptions } from "rollup";
-import typescript from "rollup-plugin-typescript2";
 import terser from "@rollup/plugin-terser";
+import typescript from '@rollup/plugin-typescript';
 import ts from "typescript";
 import { appDist, tsconfigJson } from "./constants";
 import { babelPlugin } from "./rollup-plugin-config-helpers";
 import { BuildOptions } from "./types";
 import { MinifyOptions } from "terser";
 import copy from "rollup-plugin-copy";
-// import { resolve as resolvePath } from "path";
-// import { either } from "ramda";
 
 const shebang: { [index: string]: unknown } = {};
-// const packageJsonPath: string = resolvePath(process.cwd(), "package.json");
-
-// function isFunction(value: unknown): value is (...args: unknown[]) => boolean {
-//   return (
-//     typeof value === "function" &&
-//     Object.prototype.toString.call(value) === "[object Function]"
-//   );
-// }
-
-// function externalToFn(external: unknown) {
-//   if (isFunction(external)) {
-//     return external;
-//   } else if (typeof external === "string") {
-//     return (id: string) => external === id;
-//   } else if (external instanceof RegExp) {
-//     return (id: string) => external.test(id);
-//   } else if (Array.isArray(external)) {
-//     return (id: string) =>
-//       external.some((module) =>
-//         module instanceof RegExp ? module.test(id) : module === id
-//       );
-//   }
-//   // Per the rollup docs, `undefined` isn't a valid value for the `external` option,
-//   // but it has been reported to have been passed in configs starting with 2.11.0.
-//   // It's unclear why it's happening so we'll support it for now:
-//   // https://github.com/pmowrer/rollup-plugin-peer-deps-external/issues/29
-//   else if (typeof external === "undefined" || external === null) {
-//     return () => false;
-//   } else {
-//     throw new Error(`'external' option must be a function or an array.`);
-//   }
-// }
-
-// async function getDeps(
-//   path: string = packageJsonPath,
-//   type = "peerDependencies"
-// ) {
-//   try {
-//     const pkg = await import(path);
-//     return Object.keys(pkg[type]);
-//   } catch (err) {
-//     console.error(`Error getting dependencies, ${err}`);
-//     return [];
-//   }
-// }
-
-// function getModulesMatcher(modulesNames: string[]) {
-//   const moduleRegExp = (module: string) => new RegExp(`^${module}(\\/\.+)*$`);
-//   const regexps = modulesNames.map(moduleRegExp);
-//   return (id: string) => regexps.some((regexp: RegExp) => regexp.test(id));
-// }
-
-// type PeerDepsExternalParamType = {
-//   packageJsonPath?: string;
-//   includeDependencies?: string[];
-// };
-
-// function peerDepsExternal({
-//   packageJsonPath,
-//   includeDependencies,
-// }: PeerDepsExternalParamType = {}) {
-//   return {
-//     name: "peer-deps-external",
-//     options: (opts: { external: unknown }) => {
-//       opts.external = either(
-//         // Retain existing `external` config
-//         externalToFn(opts.external),
-//         // Add `peerDependencies` to `external` config
-//         getModulesMatcher(
-//           getDeps(packageJsonPath, "peerDependencies").concat(
-//             includeDependencies ? getDeps(packageJsonPath, "dependencies") : []
-//           )
-//         )
-//       );
-
-//       return opts;
-//     },
-//   };
-// }
 
 export async function createRollupConfig(
   opts: BuildOptions,
@@ -220,7 +139,7 @@ export async function createRollupConfig(
         useTsconfigDeclarationDir: Boolean(tsCompilerOptions?.declarationDir),
       }),
       babelPlugin({
-        targets: opts.target === "node" ? { node: "16" } : undefined,
+        targets: opts.target === "node" ? { node: "18" } : undefined,
         extractErrors: opts.extractErrors,
         format: opts.format,
       })({

@@ -56,7 +56,7 @@ prog
   .describe("Create a new package with ts-build")
   .example("create mypackage")
   .action(async (pkg: string, opts: { author: string }) => {
-    Log(`Creating ${chalk.bold.green(pkg)}...`);
+    Log(`Creating new library in ${chalk.bold.green(pkg)} directory, please wait...`);
     // Helper fn to prompt the user for a different
     // folder name if one already exists
     async function getProjectPath(projectPath: string) {
