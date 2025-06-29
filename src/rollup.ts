@@ -5,7 +5,7 @@ import resolve, { DEFAULTS } from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import { RollupOptions } from "rollup";
 import terser from "@rollup/plugin-terser";
-import typescript from '@rollup/plugin-typescript';
+import typescript from "@rollup/plugin-typescript";
 import ts from "typescript";
 import { appDist, tsconfigJson } from "./constants";
 import { babelPlugin } from "./rollup-plugin-config-helpers";
@@ -110,33 +110,29 @@ export async function createRollupConfig(
       typescript({
         typescript: ts,
         tsconfig: tsconfigPath,
-        tsconfigDefaults: {
-          exclude: [
-            // all TS test files, regardless whether co-located or in test/ etc
-            "**/*.spec.ts",
-            "**/*.test.ts",
-            "**/*.spec.tsx",
-            "**/*.test.tsx",
-            // TS defaults below
-            "node_modules",
-            "bower_components",
-            "jspm_packages",
-            appDist,
-          ],
-          compilerOptions: {
-            sourceMap: true,
-            declaration: true,
-            jsx: "react",
-          },
-        },
-        tsconfigOverride: {
-          compilerOptions: {
-            target: "esnext",
-          },
+        exclude: [
+          // all TS test files, regardless whether co-located or in test/ etc
+          "**/*.spec.ts",
+          "**/*.test.ts",
+          "**/*.spec.tsx",
+          "**/*.test.tsx",
+          
+          // TS defaults below
+          "node_modules",
+          "bower_components",
+          "jspm_packages",
+          appDist,
+        ],
+        compilerOptions: {
+          target: "esnext",
+          sourceMap: true,
+          jsx: "react",
           ...(index > 0 ? { declaration: false, declarationMap: false } : {}),
+          // Example: If you want to force checkJs
+          checkJs: !opts.transpileOnly && index === 0,
+          declaration: Boolean(tsCompilerOptions?.declarationDir), // Make sure declaration is enabled if you want .d.ts files
+          // declarationDir: './dist/types', // Specify declaration output dir here or in tsconfig.json
         },
-        check: !opts.transpileOnly && index === 0,
-        useTsconfigDeclarationDir: Boolean(tsCompilerOptions?.declarationDir),
       }),
       babelPlugin({
         targets: opts.target === "node" ? { node: "18" } : undefined,
