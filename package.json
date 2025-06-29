@@ -55,6 +55,7 @@
     "semver": "^7.7.2",
     "structured-clone-polyfill": "^0.0.2",
     "tiny-glob": "^0.2.9",
+    "tsbuild": "^0.2.1",
     "typescript-eslint": "^8.35.0"
   },
   "devDependencies": {
