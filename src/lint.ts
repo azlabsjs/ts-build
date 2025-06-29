@@ -34,7 +34,7 @@ export function eslintConfig(
     },
     eslint.configs.recommended,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...(tseslint.configs.eslintRecommended as any[]),
+    ...(tseslint.configs.recommended as any[]),
     {
       files: ["**/*.ts", "**/*.tsx", "**/*.cts", "**.*.mts"], // Apply these specifically to TS/TSX files
       // rules: {

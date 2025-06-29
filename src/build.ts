@@ -50,10 +50,8 @@ if (fs.existsSync(packageJson)) {
   }
 }
 
-console.log('Package config: ', pkgConfig)
-
 prog
-  .version(pkgConfig['version'])
+  .version(pkgConfig['version'] ?? '0.5.x')
   .command("create <pkg>")
   .describe("Create a new package with ts-build")
   .example("create mypackage")
