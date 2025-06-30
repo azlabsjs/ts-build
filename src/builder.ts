@@ -32,10 +32,7 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
   ) as BuildOptions[];
   return await Promise.all(
     inputs.map(async (options, index) => {
-      const config = await createRollupConfig(
-        options,
-        index
-      );
+      const config = await createRollupConfig(options, index);
       return configurations.rollup(config);
     })
   );
@@ -95,14 +92,7 @@ export default class TsBuild {
    * Compile Typescript files to Javascript
    */
   async compile() {
-    const externalModules = this.options?.external ?? [];
-    const buildOpts: BuildOpts = {
-      ...this.options,
-      external:
-        typeof externalModules === "string"
-          ? externalModules.split(",")
-          : externalModules,
-    };
+    const buildOpts: BuildOpts = { ...this.options };
     const opts = await normalizeOpts(buildOpts, this.name, this.entry);
     const buildConfigs = await createBuildConfigs(opts);
     // # TODO : Remove dist folder

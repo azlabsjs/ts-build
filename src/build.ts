@@ -12,7 +12,7 @@ import {
 } from "./tempates";
 import semver from "semver";
 import * as Messages from "./messages";
-import { logError } from "./logger";
+import { info, logError } from "./logger";
 import child_process from "child_process";
 import TsBuild from "./builder";
 import getInstallArgs, {
@@ -26,7 +26,7 @@ import { appRoot, packageJson } from "./constants";
 import { createLinter, getErrorResultCount, outputfix } from "./lint";
 import { createProgressEstimator } from "./progress-estimator";
 import { ESLint } from "eslint";
-import { ErrorType, PackageJson } from "./types";
+import { BuildOpts, ErrorType, PackageJson } from "./types";
 
 // Types
 type Error = { message: string };
@@ -51,12 +51,16 @@ if (fs.existsSync(packageJson)) {
 }
 
 prog
-  .version(pkgConfig['version'] ?? '0.5.x')
+  .version(pkgConfig["version"] ?? "0.5.x")
   .command("create <pkg>")
   .describe("Create a new package with ts-build")
   .example("create mypackage")
   .action(async (pkg: string, opts: { author: string }) => {
-    Log(`Creating new library in ${chalk.bold.green(pkg)} directory, please wait...`);
+    Log(
+      `Creating new library in ${chalk.bold.green(
+        pkg
+      )} directory, please wait...`
+    );
     // Helper fn to prompt the user for a different
     // folder name if one already exists
     async function getProjectPath(projectPath: string) {
@@ -169,13 +173,27 @@ prog
   .example(
     "build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant="
   )
-  .action(async (options) =>
-    new TsBuild(
-      options,
+  .action(async (options) => {
+    const externalModules = options["external"] ?? [];
+    let external =
+      typeof externalModules === "string"
+        ? externalModules.split(",")
+        : (externalModules as string[]);
+
+    // Merge peerDependencies declaration as external modules for the current project
+    if (pkgConfig && pkgConfig["peerDependencies"]) {
+      external = [...external, ...Object.keys(pkgConfig["peerDependencies"])];
+    }
+    const buildOpts: BuildOpts = { ...options, external };
+
+    info(`Compiling library with external dependencies ${external.join(", ")}...`);
+
+    return new TsBuild(
+      buildOpts,
       pkgConfig["name"],
       pkgConfig["source"]
-    ).compile()
-  );
+    ).compile();
+  });
 
 prog
   .command("lint")
