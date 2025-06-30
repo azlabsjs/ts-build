@@ -186,7 +186,7 @@ prog
     }
     const buildOpts: BuildOpts = { ...options, external };
 
-    info(`Compiling library with external dependencies ${external.join(", ")}...`);
+    info(`Compiling library with external dependencies [ ${external.join(", ")} ] ...`);
 
     return new TsBuild(
       buildOpts,
