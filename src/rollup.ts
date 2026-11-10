@@ -19,7 +19,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
   const extension = opts.format === "esm" ? "mjs" : "cjs";
   const outputName = [`${appDist}/${opts.format}/index`, shouldMinify ? "min" : "", extension].filter(Boolean).join(".");
   const basename = basePathName(appDist);
-  const tsCompilerDeclarationDir = `./${basename}/${opts.format}`;
+  const tsDeclarationDir = `./${basename}/${opts.format}`;
 
   const mainFields = ["module", "main"];
   if (opts.target !== "node") {
@@ -87,11 +87,10 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
           jsx: "react",
           target: "esnext",
           module: "esnext",
-          declaration: index === 0,
-          declarationMap: index === 0,
-          ...(index > 0 ? { declaration: false, declarationMap: false } : {}),
           checkJs: !opts.transpileOnly && index === 0,
-          declarationDir: tsCompilerDeclarationDir, // specify declaration output dir here or in tsconfig.json
+          declaration: true,
+          declarationMap: true,
+          declarationDir: tsDeclarationDir, // specify declaration output dir here or in tsconfig.json
         },
         exclude: [
           "**/*.spec.ts",
@@ -129,21 +128,6 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
         ecma: 2015,
         toplevel: opts.format === "cjs",
       } as MinifyOptions) : undefined,
-      // copyTypeDeclarations
-      //   ? copy({
-      //     targets: [
-      //       {
-      //         src: "dist/types/index.d.ts",
-      //         dest: "dist/types/",
-      //         rename: "index.d.mts",
-      //       },
-      //     ],
-      //     verbose: true,
-      //     copyOnce: true,
-      //     copySync: true,
-      //     hook: "writeBundle",
-      //   })
-      //   : undefined,
     ].filter((plugin) => typeof plugin !== "undefined" && plugin !== null),
   } as RollupOptions;
 }
