@@ -57,11 +57,8 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
       sourcemap: true,
       globals: { react: "React", "react-native": "ReactNative" },
       exports: "named",
-      inlineDynamicImports: Boolean(opts.inlineDynamicImports),
-
       preserveModules: true,
       preserveModulesRoot: "src",
-
       entryFileNames: `[name].${extension}`,
       chunkFileNames: `[name].${extension}`,
     } : {

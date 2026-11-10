@@ -167,7 +167,7 @@ prog
 
     Logger.info(`Compiling library with external dependencies [ ${external.join(", ")} ] ...`);
 
-    if ('target' in options && Boolean(options['target'])) {
+    if ('bundled' in options && Boolean(options['bundled'])) {
       Logger.info(`Compiling library into a single bundle ...`);
     }
 
