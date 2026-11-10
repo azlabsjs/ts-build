@@ -9,13 +9,59 @@ import shell from 'child_process';
 type InstallCommand = 'yarn' | 'npm';
 let cmd: InstallCommand;
 
-export const merge = (...list: any[]) => {
-  let source: { [inde: string]: any } = {};
-  for (const item of list) {
-    source = Object.assign(source, item ?? {});
+/**
+ * Checks if a value is a plain object.
+ */
+function isPlainObject(item: unknown): item is Record<string, any> {
+  return (
+    item !== null &&
+    typeof item === 'object' &&
+    !Array.isArray(item) &&
+    Object.prototype.toString.call(item) === '[object Object]'
+  );
+}
+
+/**
+ * Safely performs a deep merge of source objects into a target object
+ * without mutating the original objects and preventing prototype pollution.
+ */
+export function deepMerge<T extends Record<string, any>>(target: T, ...sources: (Partial<T> | unknown)[]): T {
+  if (!sources.length) {
+    return target;
   }
-  return source;
-};
+  
+  const source = sources.shift();
+  if (!source) {
+    return deepMerge(target, ...sources);
+  }
+
+  const output: Record<string, any> = { ...target };
+
+  if (isPlainObject(target) && isPlainObject(source)) {
+    Object.keys(source).forEach((key) => {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return;
+      }
+
+      const sourceValue = source[key];
+      const targetValue = target[key];
+
+      if (isPlainObject(sourceValue)) {
+        if (!(key in target) || !isPlainObject(targetValue)) {
+          output[key] = deepMerge({}, sourceValue);
+        } else {
+          output[key] = deepMerge(targetValue, sourceValue);
+        }
+      } else if (Array.isArray(sourceValue)) {
+        output[key] = [...sourceValue];
+      } else {
+        output[key] = sourceValue;
+      }
+    });
+  }
+
+  return deepMerge(output as T, ...sources);
+}
 
 export const concatAllArray = (values: any[][]) =>
   values.reduce((previous, current) => {
