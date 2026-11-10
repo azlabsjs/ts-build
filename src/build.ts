@@ -17,7 +17,7 @@ import { appRoot, packageJson } from "./constants";
 import { createLinter, getErrorResultCount, outputfix } from "./lint";
 import { createProgressEstimator } from "./progress-estimator";
 import { ESLint } from "eslint";
-import { BuildOpts, PackageJson } from "./types";
+import { BuildOpts, ErrorType, PackageJson } from "./types";
 
 // Types
 type Error = { message: string };
@@ -106,7 +106,7 @@ prog
       await Messages.start(pkg);
     } catch (error) {
       Log(`Failed to create ${chalk.bold.red(pkg)}`);
-      Logger.logError(error);
+      Logger.logError(error as ErrorType);
       process.exit(1);
     }
     const { dependencies: deps } = TemplateConfig;
@@ -129,7 +129,7 @@ prog
       Log(await Messages.start(pkg));
     } catch (error) {
       Log("Failed to install dependencies");
-      Logger.logError(error);
+      Logger.logError(error as ErrorType);
       process.exit(1);
     }
   });

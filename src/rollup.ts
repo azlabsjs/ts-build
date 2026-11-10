@@ -40,7 +40,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
     },
   } : undefined;
 
-  const errorExtractionPlugin: Plugin | undefined = opts.extractErrors ? { name: 'extract-errors-transform', transform: (_code, _id) => null } : undefined;
+  const errorExtractionPlugin: Plugin | undefined = opts.extractErrors ? { name: 'extract-errors-transform', transform: () => null } : undefined;
 
   return {
     input: opts.input,

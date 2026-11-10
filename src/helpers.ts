@@ -13,7 +13,7 @@ let cmd: InstallCommand;
 /**
  * Checks if a value is a plain object.
  */
-function isPlainObject(item: unknown): item is Record<string, any> {
+function isPlainObject(item: unknown): item is Record<string, unknown> {
   return (
     item !== null &&
     typeof item === 'object' &&
@@ -26,7 +26,7 @@ function isPlainObject(item: unknown): item is Record<string, any> {
  * Safely performs a deep merge of source objects into a target object
  * without mutating the original objects and preventing prototype pollution.
  */
-export function deepMerge<T extends Record<string, any>>(target: T, ...sources: (Partial<T> | unknown)[]): T {
+export function deepMerge<T extends Record<string, unknown>>(target: T, ...sources: (Partial<T> | unknown)[]): T {
   if (!sources.length) {
     return target;
   }
@@ -36,7 +36,7 @@ export function deepMerge<T extends Record<string, any>>(target: T, ...sources: 
     return deepMerge(target, ...sources);
   }
 
-  const output: Record<string, any> = { ...target };
+  const output: Record<string, unknown> = { ...target };
 
   if (isPlainObject(target) && isPlainObject(source)) {
     Object.keys(source).forEach((key) => {

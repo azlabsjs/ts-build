@@ -4,7 +4,7 @@ import { ErrorType } from "./types";
 const stderr = console.error.bind(console);
 
 export const Logger = {
-  logError(err: ErrorType | any) {
+  logError(err: ErrorType) {
     const error = err.error ?? err;
     const description = `${error.name ? error.name + ': ' : ''}${error.message || error}`;
     const message = error.plugin ? error.plugin === 'rpt2' ? `(typescript) ${description}` : `(${error.plugin} plugin) ${description}` : description;

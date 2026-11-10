@@ -5,7 +5,7 @@ import { rollup, RollupOptions } from "rollup";
 import { Logger } from './logger';
 import { concatAllArray } from "./helpers";
 import { createRollupConfig } from "./rollup";
-import { BuildOptions, BuildOpts, NormalizedOpts } from "./types";
+import { BuildOptions, BuildOpts, ErrorType, NormalizedOpts } from "./types";
 import fs from "fs";
 import { appConfig } from "./constants";
 
@@ -124,7 +124,7 @@ export default class TsBuild {
       logger(promise, "Building modules");
       await promise;
     } catch (error) {
-      Logger.logError(error);
+      Logger.logError(error as ErrorType);
       process.exit(1);
     }
   }
