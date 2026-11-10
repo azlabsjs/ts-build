@@ -2,7 +2,6 @@
 
 import chalk from "chalk";
 import sade from "sade";
-const pkg = require("../../package.json");
 const prog = sade("ts-build");
 import fs from "fs-extra";
 import path from "path";
@@ -17,31 +16,42 @@ import { readFileSync } from "jsonfile";
 import { appRoot, packageJson } from "./constants";
 import { createLinter, getErrorResultCount, outputfix } from "./lint";
 import { createProgressEstimator } from "./progress-estimator";
+import { ESLint } from "eslint";
+import { BuildOpts, PackageJson } from "./types";
+
+// Types
+type Error = { message: string };
 
 // Define globals
-let appPackageJson: { [index: string]: any } = {};
+let pkgConfig: PackageJson = {} as PackageJson;
 const Log = console.log;
 
 // Read the package.json file id exists
 if (fs.existsSync(packageJson)) {
   try {
-    appPackageJson = readFileSync(packageJson);
-  } catch (e: any) {
+    pkgConfig = readFileSync(packageJson);
+  } catch (e) {
     Log(
       chalk.red(
-        `Error while reading package.json file in the current director: ${e.message}`
+        `Error while reading package.json file in the current director: ${
+          (e as Error).message
+        }`
       )
     );
   }
 }
 
 prog
-  .version(pkg.version)
+  .version(pkgConfig["version"] ?? "0.5.x")
   .command("create <pkg>")
   .describe("Create a new package with ts-build")
   .example("create mypackage")
-  .action(async (pkg: string, opts: any) => {
-    Log(`Creating ${chalk.bold.green(pkg)}...`);
+  .action(async (pkg: string, opts: { author: string }) => {
+    Log(
+      `Creating new library in ${chalk.bold.green(
+        pkg
+      )} directory, please wait...`
+    );
     // Helper fn to prompt the user for a different
     // folder name if one already exists
     async function getProjectPath(projectPath: string) {
@@ -154,13 +164,27 @@ prog
   .example(
     "build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant="
   )
-  .action(async (options) =>
-    new TsBuild(
-      options,
-      appPackageJson["name"],
-      appPackageJson["source"]
-    ).compile()
-  );
+  .action(async (options) => {
+    const externalModules = options["external"] ?? [];
+    let external =
+      typeof externalModules === "string"
+        ? externalModules.split(",")
+        : (externalModules as string[]);
+
+    // Merge peerDependencies declaration as external modules for the current project
+    if (pkgConfig && pkgConfig["peerDependencies"]) {
+      external = [...external, ...Object.keys(pkgConfig["peerDependencies"])];
+    }
+    const buildOpts: BuildOpts = { ...options, external };
+
+    Logger.info(`Compiling library with external dependencies [ ${external.join(", ")} ] ...`);
+
+    return new TsBuild(
+      buildOpts,
+      pkgConfig["name"],
+      pkgConfig["source"]
+    ).compile();
+  });
 
 prog
   .command("lint")
@@ -196,17 +220,16 @@ prog
         );
       }
 
-      const linter = createLinter({
+      const linterFactory = createLinter({
         rootDir: appRoot,
         write: options["write-file"],
-      })(
+      });
+      const linter = linterFactory(
         {
-          ...(appPackageJson["eslint"] ?? {}),
+          ...(pkgConfig["eslint"] ?? {}),
           ignorePattern: options["ignore-pattern"],
-        },
-        {
-          fix: options.fix,
-        }
+        } as Partial<ESLint.Options>,
+        { fix: options.fix }
       );
       const results = await linter.lintFiles(options["_"]);
       if (options.fix) {

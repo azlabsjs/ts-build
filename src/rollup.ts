@@ -1,7 +1,6 @@
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import resolve, { DEFAULTS } from "@rollup/plugin-node-resolve";
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import replace from "@rollup/plugin-replace";
 import { RollupOptions } from "rollup";
 import typescript from "@rollup/plugin-typescript";
@@ -13,7 +12,7 @@ import { MinifyOptions } from "terser";
 import copy from "rollup-plugin-copy";
 import type { Plugin } from 'rollup';
 
-const shebang: { [index: string]: any } = {};
+const shebang: { [index: string]: unknown } = {};
 
 export async function createRollupConfig(
   opts: BuildOptions,
@@ -66,7 +65,7 @@ export async function createRollupConfig(
     },
     external: opts.external ?? [],
     plugins: [
-      peerDepsExternal(),
+      // peerDepsExternal(),
       resolve({ mainFields, extensions: [...DEFAULTS.extensions] }),
       commonjs({ include: /\/node_modules\// }),
       json(),
@@ -95,6 +94,8 @@ export async function createRollupConfig(
           declaration: index === 0,
           declarationMap: index === 0,
           ...(index > 0 ? { declaration: false, declarationMap: false } : {}),
+          checkJs: !opts.transpileOnly && index === 0,
+          // declarationDir: tsCompilerDeclarationDir, // specify declaration output dir here or in tsconfig.json
         },
         exclude: [
           "**/*.spec.ts",

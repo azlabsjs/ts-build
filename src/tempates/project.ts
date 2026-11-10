@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 const gitignore = `
 *.log
@@ -115,7 +115,7 @@ jobs:
     runs-on: \${{ matrix.os }}
     strategy:
       matrix:
-        node: ['16.x', '18.x', '20.x']
+        node: ['18.x', '20.x', '22.x']
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
@@ -214,29 +214,29 @@ jobs:
 `;
 
 const esLintConfig = `
-{
-  "root": true,
-  "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-      "project": [
-          "./tsconfig.json"
-      ]
-  },
-  "plugins": [
-      "@typescript-eslint"
-  ],
-  "rules": {
-      "@typescript-eslint/no-explicit-any": 0
-  },
-  "ignorePatterns": [
-      "src/**/*.test.ts",
-      "src/frontend/generated/*"
-  ]
-}
+// @ts-check
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
+  {
+    ignores: [
+      "test/**/*.test.ts", // ignore test files in 'test' directory
+      "test/**/*.spec.ts", // ignore test files in 'test' directory
+      "src/**/*.test.ts", // ignore test files
+      "dist/", // Ignore the entire 'dist' directory
+      "build/", // Ignore the entire 'build' directory
+      "lib/", // Ignore entire 'lib' directory
+      "node_modules/", // Typically ignored by default, but good to be explicit
+      "coverage/", // Ignore test coverage reports
+      "**/*.d.ts", // Ignore all TypeScript declaration files
+      ".config/*.js", // Ignore specific JS config files
+      "custom-ignore-file.js", // Ignore a specific file
+    ],
+  }
+);
 `;
 
 
@@ -251,7 +251,6 @@ module.exports = {
 const precommitHook = `
 #!/bin/sh
 
-npx betterer precommit
 npx lint-staged
 ts-build build
 `;
@@ -262,7 +261,7 @@ const npmrcConfigForTsBuild = `
 `;
 
 const writeContent = (path_: string, content: string) => {
-  fs.open(path_, 'w+', (err, fd) => {
+  fs.open(path_, "w+", (err, fd) => {
     if (err) {
       throw new Error(err.message);
     }

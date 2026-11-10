@@ -1,3 +1,5 @@
+import { Template } from "./types";
+
 export const template = {
   name: "basic",
   dependencies: [
@@ -13,18 +15,20 @@ export const template = {
     "jest-watch-typeahead",
     "@typescript-eslint/parser",
     "@typescript-eslint/eslint-plugin",
-    "prettier"
+    "prettier",
+    "@eslint/js",
+    "eslint"
   ],
   packageJson: {
     version: "0.1.0",
     license: "MIT",
     main: "dist/index.js",
     module: `dist/esm/index.mjs`,
-    types: `dist/types/index.d.ts`,
-    typings: `dist/types/index.d.ts`,
+    types: "./dist/esm/index.d.ts",
+    typings: "./dist/esm/index.d.ts",
     files: ["dist/**/*"],
     engines: {
-      node: ">=16",
+      node: ">=18",
     },
     scripts: {
       build: "ts-build build",
@@ -48,17 +52,19 @@ export const template = {
     exports: {
       ".": {
         import: {
-          types: "./dist/types/index.d.mts",
+          types: "./dist/esm/index.d.ts",
+          typings: "./dist/esm/index.d.ts",
           default: "./dist/esm/index.mjs",
         },
         require: {
-          types: "./dist/types/index.d.ts",
+          types: "./dist/cjs/index.d.ts",
+          typings: "./dist/cjs/index.d.ts",
           default: "./dist/cjs/index.cjs",
         },
       },
     },
-  } as { [index: string]: any },
-} as { [index: string]: any };
+  },
+} as Template;
 
 export { composePackageJson } from "./helpers";
 export { createProjectStructure } from "./project";
