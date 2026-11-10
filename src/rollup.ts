@@ -17,9 +17,9 @@ const shebang: { [index: string]: unknown } = {};
 export async function createRollupConfig(opts: BuildOptions, index: number): Promise<RollupOptions> {
   const shouldMinify = opts.minify !== undefined ? opts.minify : opts.env === "production";
   const extension = opts.format === "esm" ? "mjs" : "cjs";
-  const outputName = [`${appDist}/${opts.format}/index`, shouldMinify ? "min" : "", extension].filter(Boolean).join(".");
   const basename = basePathName(appDist);
   const tsDeclarationDir = `./${basename}/${opts.format}`;
+  const preserveModules = !opts.bundled;
 
   const mainFields = ["module", "main"];
   if (opts.target !== "node") {
@@ -48,8 +48,24 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
   return {
     input: opts.input,
     treeshake: { propertyReadSideEffects: false },
-    output: {
-      file: outputName,
+    output: preserveModules ? {
+      dir: `${appDist}/${opts.format}`,
+      format: opts.format,
+      freeze: false,
+      esModule: Boolean(tsCompilerOptions?.esModuleInterop),
+      name: opts.name,
+      sourcemap: true,
+      globals: { react: "React", "react-native": "ReactNative" },
+      exports: "named",
+      inlineDynamicImports: Boolean(opts.inlineDynamicImports),
+
+      preserveModules: true,
+      preserveModulesRoot: "src",
+
+      entryFileNames: `[name].${extension}`,
+      chunkFileNames: `[name].${extension}`,
+    } : {
+      file: [`${appDist}/${opts.format}/index`, shouldMinify ? "min" : "", extension].filter(Boolean).join("."),
       format: opts.format,
       freeze: false,
       esModule: Boolean(tsCompilerOptions?.esModuleInterop),
@@ -61,7 +77,6 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
     },
     external: opts.external ?? [],
     plugins: [
-      // peerDepsExternal(),
       resolve({ mainFields, extensions: [...DEFAULTS.extensions] }),
       commonjs({ include: /\/node_modules\// }),
       json(),

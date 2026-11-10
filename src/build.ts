@@ -33,8 +33,7 @@ if (fs.existsSync(packageJson)) {
   } catch (e) {
     Log(
       chalk.red(
-        `Error while reading package.json file in the current director: ${
-          (e as Error).message
+        `Error while reading package.json file in the current director: ${(e as Error).message
         }`
       )
     );
@@ -151,27 +150,16 @@ prog
   .example("build --transpileOnly")
   .option("--external", "List of external modules")
   .example("build --external lodash,conf")
-  .option(
-    "--inlineDynamicImports",
-    "Rollup should inline dynamic imports",
-    true
-  )
+  .option("--inlineDynamicImports", "Rollup should inline dynamic imports", true)
   .example("build --inlineDynamicImports")
-  .option(
-    "--extractErrors",
-    "Extract errors to ./errors/codes.json and provide a url for decoding."
-  )
-  .example(
-    "build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant="
-  )
+  .option("--extractErrors", "Extract errors to ./errors/codes.json and provide a url for decoding.")
+  .example("build --extractErrors=https://reactjs.org/docs/error-decoder.html?invariant=")
+  .option("--bundled", "compile source code into a single javascript bundle")
+  .example("build --bundled")
   .action(async (options) => {
     const externalModules = options["external"] ?? [];
-    let external =
-      typeof externalModules === "string"
-        ? externalModules.split(",")
-        : (externalModules as string[]);
+    let external = typeof externalModules === "string" ? externalModules.split(",") : (externalModules as string[]);
 
-    // Merge peerDependencies declaration as external modules for the current project
     if (pkgConfig && pkgConfig["peerDependencies"]) {
       external = [...external, ...Object.keys(pkgConfig["peerDependencies"])];
     }
@@ -179,11 +167,11 @@ prog
 
     Logger.info(`Compiling library with external dependencies [ ${external.join(", ")} ] ...`);
 
-    return new TsBuild(
-      buildOpts,
-      pkgConfig["name"],
-      pkgConfig["source"]
-    ).compile();
+    if ('target' in options && Boolean(options['target'])) {
+      Logger.info(`Compiling library into a single bundle ...`);
+    }
+
+    return new TsBuild(buildOpts, pkgConfig["name"], pkgConfig["source"]).compile();
   });
 
 prog

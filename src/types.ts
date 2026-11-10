@@ -1,9 +1,6 @@
 interface SharedOpts {
-  // JS target
   target: "node" | "browser";
-  // Path to tsconfig file
   tsconfig?: string;
-  // Is error extraction running?
   extractErrors?: boolean;
 }
 
@@ -16,41 +13,35 @@ export interface BuildOpts extends SharedOpts {
   target: "browser";
   external?: string | string[];
   inlineDynamicImports?: boolean;
+  bundled?: boolean;
 }
 
 export interface WatchOpts extends BuildOpts {
   verbose?: boolean;
   noClean?: boolean;
-  // callback hooks
   onFirstSuccess?: string;
   onSuccess?: string;
   onFailure?: string;
 }
 
-export interface NormalizedOpts
-  extends Omit<WatchOpts, "name" | "input" | "format"> {
+export interface NormalizedOpts extends Omit<WatchOpts, "name" | "input" | "format"> {
+  bundled?: boolean;
   name: string;
   input: string[];
   format: ModuleFormat[];
 }
 
 export interface BuildOptions extends SharedOpts {
-  // Name of package
   name: string;
-  // path to file
   input: string;
-  // Environment
   env: "development" | "production";
-  // Module format
   format: ModuleFormat;
-  // Is minifying?
   minify?: boolean;
-  // Is this the very first rollup config (and thus should one-off metadata be extracted)?
   writeMeta?: boolean;
-  // Only transpile, do not type check (makes compilation faster)
   transpileOnly?: boolean;
   external?: string | string[];
   inlineDynamicImports?: boolean;
+  bundled: boolean; 
 }
 
 export interface PackageJson {

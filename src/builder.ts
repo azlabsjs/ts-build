@@ -79,7 +79,6 @@ function createAllFormats(opts: NormalizedOpts, input: string) {
 }
 
 export default class TsBuild {
-  // Class constructor
   constructor(private options: BuildOpts, private name: string, private entry: string) { }
 
   /**

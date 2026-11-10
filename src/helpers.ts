@@ -30,7 +30,7 @@ export function deepMerge<T extends Record<string, unknown>>(target: T, ...sourc
   if (!sources.length) {
     return target;
   }
-  
+
   const source = sources.shift();
   if (!source) {
     return deepMerge(target, ...sources);
@@ -64,11 +64,7 @@ export function deepMerge<T extends Record<string, unknown>>(target: T, ...sourc
   return deepMerge(output as T, ...sources);
 }
 
-export const concatAllArray = <T>(values: T[][]) =>
-  values.reduce((previous, current) => {
-    previous = previous.concat(current);
-    return previous;
-  }, []);
+export const concatAllArray = <T>(values: T[][]) => values.reduce((previous, current) => previous.concat(current), []);
 
 export const isTruthy = (obj: unknown) => {
   if (!obj) {
@@ -82,13 +78,7 @@ export const isTruthy = (obj: unknown) => {
  * @param {string} filename
  */
 function jsOrTs(filename: string) {
-  const extension = fs.statSync(resolveApp(filename + ".ts")).isFile()
-    ? ".ts"
-    : fs.statSync(resolveApp(filename + ".tsx")).isFile()
-    ? ".tsx"
-    : fs.statSync(resolveApp(filename + ".jsx")).isFile()
-    ? ".jsx"
-    : ".js";
+  const extension = fs.statSync(resolveApp(filename + ".ts")).isFile() ? ".ts" : fs.statSync(resolveApp(filename + ".tsx")).isFile() ? ".tsx" : fs.statSync(resolveApp(filename + ".jsx")).isFile() ? ".jsx" : ".js";
   return resolveApp(`${filename}${extension}`);
 }
 
@@ -97,18 +87,14 @@ export async function getInputs(entries: string | string[], source: string) {
     Array.isArray(entries) && entries.length !== 0
       ? entries
       : typeof source === "string"
-      ? [resolveApp(source)]
-      : fs.statSync(resolveApp("src")).isDirectory()
-      ? [jsOrTs("src/index")]
-      : [];
+        ? [resolveApp(source)]
+        : fs.statSync(resolveApp("src")).isDirectory()
+          ? [jsOrTs("src/index")]
+          : [];
   const values = await Promise.all(entries.map(async (file) => glob(file)));
   return concatAllArray(values);
 }
-export async function normalizeOpts(
-  opts: WatchOpts,
-  name: string,
-  entry: string
-): Promise<NormalizedOpts> {
+export async function normalizeOpts(opts: WatchOpts, name: string, entry: string): Promise<NormalizedOpts> {
   return {
     ...opts,
     name: opts.name ?? name,
@@ -158,7 +144,7 @@ export const createPackageName = (name: string) =>
     .toLowerCase()
     .replace(/(^@.*\/)|((^[^a-zA-Z]+)|[^\w.-])|([^a-zA-Z0-9]+$)/g, "");
 
-export function getNodeEngineRequirement({ engines }: {engines: NodeEngineConfigType}) {
+export function getNodeEngineRequirement({ engines }: { engines: NodeEngineConfigType }) {
   return engines && engines.node;
 }
 
