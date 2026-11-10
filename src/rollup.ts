@@ -10,6 +10,7 @@ import { appDist, tsconfigJson } from "./constants";
 import { BuildOptions } from "./types";
 import { MinifyOptions } from "terser";
 import type { Plugin } from 'rollup';
+import { basename as basePathName } from "path";
 
 const shebang: { [index: string]: unknown } = {};
 
@@ -17,6 +18,8 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
   const shouldMinify = opts.minify !== undefined ? opts.minify : opts.env === "production";
   const extension = opts.format === "esm" ? "mjs" : "cjs";
   const outputName = [`${appDist}/${opts.format}/index`, shouldMinify ? "min" : "", extension].filter(Boolean).join(".");
+  const basename = basePathName(appDist);
+  const tsCompilerDeclarationDir = `./${basename}/${opts.format}`;
 
   const mainFields = ["module", "main"];
   if (opts.target !== "node") {
@@ -44,9 +47,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
 
   return {
     input: opts.input,
-    treeshake: {
-      propertyReadSideEffects: false,
-    },
+    treeshake: { propertyReadSideEffects: false },
     output: {
       file: outputName,
       format: opts.format,
@@ -90,7 +91,7 @@ export async function createRollupConfig(opts: BuildOptions, index: number): Pro
           declarationMap: index === 0,
           ...(index > 0 ? { declaration: false, declarationMap: false } : {}),
           checkJs: !opts.transpileOnly && index === 0,
-          // declarationDir: tsCompilerDeclarationDir, // specify declaration output dir here or in tsconfig.json
+          declarationDir: tsCompilerDeclarationDir, // specify declaration output dir here or in tsconfig.json
         },
         exclude: [
           "**/*.spec.ts",
