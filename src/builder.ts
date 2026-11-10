@@ -30,7 +30,7 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
   ) as BuildOptions[];
   return await Promise.all(
     inputs.map(async (options, index) => {
-      const config = await createRollupConfig(options, index, inputs.length > 1 && index === 1 && opts.format.includes('esm'));
+      const config = await createRollupConfig(options, index); // inputs.length > 1 && index === 1 && opts.format.includes('esm')
       return configurations.rollup(config);
     })
   );

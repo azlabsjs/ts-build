@@ -9,16 +9,11 @@ import ts from "typescript";
 import { appDist, tsconfigJson } from "./constants";
 import { BuildOptions } from "./types";
 import { MinifyOptions } from "terser";
-import copy from "rollup-plugin-copy";
 import type { Plugin } from 'rollup';
 
 const shebang: { [index: string]: unknown } = {};
 
-export async function createRollupConfig(
-  opts: BuildOptions,
-  index: number,
-  copyTypeDeclarations: boolean
-): Promise<RollupOptions> {
+export async function createRollupConfig(opts: BuildOptions, index: number): Promise<RollupOptions> {
   const shouldMinify = opts.minify !== undefined ? opts.minify : opts.env === "production";
   const extension = opts.format === "esm" ? "mjs" : "cjs";
   const outputName = [`${appDist}/${opts.format}/index`, shouldMinify ? "min" : "", extension].filter(Boolean).join(".");
@@ -133,21 +128,21 @@ export async function createRollupConfig(
         ecma: 2015,
         toplevel: opts.format === "cjs",
       } as MinifyOptions) : undefined,
-      copyTypeDeclarations
-        ? copy({
-          targets: [
-            {
-              src: "dist/types/index.d.ts",
-              dest: "dist/types/",
-              rename: "index.d.mts",
-            },
-          ],
-          verbose: true,
-          copyOnce: true,
-          copySync: true,
-          hook: "writeBundle",
-        })
-        : undefined,
+      // copyTypeDeclarations
+      //   ? copy({
+      //     targets: [
+      //       {
+      //         src: "dist/types/index.d.ts",
+      //         dest: "dist/types/",
+      //         rename: "index.d.mts",
+      //       },
+      //     ],
+      //     verbose: true,
+      //     copyOnce: true,
+      //     copySync: true,
+      //     hook: "writeBundle",
+      //   })
+      //   : undefined,
     ].filter((plugin) => typeof plugin !== "undefined" && plugin !== null),
   } as RollupOptions;
 }
