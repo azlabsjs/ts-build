@@ -1,17 +1,10 @@
 import { ConfigItem, createConfigItem } from '@babel/core';
 import { RollupBabelCustomInputPlugin, createBabelInputPluginFactory } from '@rollup/plugin-babel';
-import { isTruthy, merge } from './helpers';
+import { isTruthy, deepMerge } from './helpers';
 
-// replace lodash with lodash-es, but not lodash/fp
-const replacements = [{ original: 'lodash(?!/fp)', replacement: 'lodash-es' }];
-
-const createConfigItems = (
-  type: any,
-  items: { name: string; [index: string]: any }[]
-) => {
+const createConfigItems = ( type: any, items: { name: string; [index: string]: any }[]) => {
   return items.map(({ name, ...options }) => {
-    const item = createConfigItem([name, options], { type });
-    return item;
+    return createConfigItem([name, options], { type });
   });
 };
 
@@ -31,11 +24,9 @@ const mergeConfigItems = (type: any, ...configItemsToMerge: any[][]) => {
       mergedItems[itemToMergeWithIndex] = createConfigItem(
         [
           mergedItems[itemToMergeWithIndex].file.resolved,
-          merge(mergedItems[itemToMergeWithIndex].options, item.options),
+          deepMerge(mergedItems[itemToMergeWithIndex].options, item.options),
         ],
-        {
-          type,
-        }
+        { type }
       );
     });
   });
@@ -43,16 +34,12 @@ const mergeConfigItems = (type: any, ...configItemsToMerge: any[][]) => {
   return mergedItems;
 };
 
-export const babelPlugin = (customOptions: { [inde: string]: any }) =>
+export const babelPlugin = (customOptions: { [index: string]: any }) =>
   createBabelInputPluginFactory(() => {
     return {
-      // Passed the plugin options.
       options({ customOptions, ...pluginOptions }) {
         return {
-          // Pull out any custom options that the plugin might have.
           customOptions,
-
-          // Pass the options back with the two custom options removed.
           pluginOptions,
         };
       },
@@ -62,28 +49,26 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
             name: '@babel/plugin-transform-runtime',
             absoluteRuntime: false,
           },
-          { name: 'babel-plugin-macros' },
-          { name: 'babel-plugin-annotate-pure-calls' },
-          { name: 'babel-plugin-dev-expression' },
           {
-            name: 'babel-plugin-polyfill-regenerator',
-            // don't pollute global env as this is being used in a library
-            method: 'usage-pure',
+            name: './babel-plugin-annotate-pure-calls-compat',
           },
           {
             name: '@babel/plugin-transform-class-properties',
             loose: true,
           },
         ];
+
+        // 2. Replaced babel-plugin-transform-rename-import with modern alternative
         if (customOptions['format'] !== 'cjs') {
           plugins = [
             ...plugins,
             {
-              name: 'babel-plugin-transform-rename-import',
-              replacements,
+              name: 'babel-plugin-transform-rewrite-imports',
+              replacements: [{ original: 'lodash(?!/fp)', replacement: 'lodash-es' }],
             },
           ];
         }
+
         if (isTruthy(customOptions['extractErrors'])) {
           plugins = [
             ...plugins,
@@ -92,6 +77,7 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
             },
           ];
         }
+
         const defaultPlugins = createConfigItems('plugin', plugins);
 
         const babelOptions = config.options || {};
@@ -101,16 +87,17 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
           (preset as ConfigItem).file?.request.includes('@babel/preset-env')
         );
 
-        // if they use preset-env, merge their options with ours
         if (presetEnvIdx !== -1) {
           const presetEnv = babelOptions.presets[presetEnvIdx];
           babelOptions.presets[presetEnvIdx] = createConfigItem(
             [
               (presetEnv as ConfigItem).file?.resolved,
-              merge(
+              deepMerge(
                 {
                   loose: true,
                   targets: customOptions.targets,
+                  useBuiltIns: 'usage',
+                  corejs: '3.38',
                 },
                 (presetEnv as ConfigItem).options,
                 {
@@ -118,18 +105,17 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
                 }
               ),
             ],
-            {
-              type: `preset`,
-            }
+            { type: `preset` }
           );
         } else {
-          // if no preset-env, add it & merge with their presets
           const defaultPresets = createConfigItems('preset', [
             {
               name: '@babel/preset-env',
               targets: customOptions.targets,
               modules: false,
               loose: true,
+              useBuiltIns: 'usage',
+              corejs: '3.38',
             },
           ]);
 
@@ -140,7 +126,6 @@ export const babelPlugin = (customOptions: { [inde: string]: any }) =>
           );
         }
 
-        // Merge babelrc & our plugins together
         babelOptions.plugins = mergeConfigItems(
           'plugin',
           defaultPlugins,
