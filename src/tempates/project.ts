@@ -16,32 +16,20 @@ const tsconfig = `
       "module": "esnext",
       "lib": ["dom", "esnext"],
       "importHelpers": true,
-      // output .d.ts declaration files for consumers
       "declaration": true,
-      // output .js.map sourcemap files for consumers
       "sourceMap": true,
-      // match output dir to input dir. e.g. dist/index instead of dist/src/index
       "rootDir": "./src",
-      // stricter type-checking for stronger correctness. Recommended by TS
       "strict": true,
-      // linter checks for common issues
       "noImplicitReturns": true,
       "noFallthroughCasesInSwitch": true,
-      // noUnused* overlap with @typescript-eslint/no-unused-vars, can disable if duplicative
       "noUnusedLocals": true,
       "noUnusedParameters": true,
-      // use Node's module resolution algorithm, instead of the legacy TS one
-      "moduleResolution": "node",
-      // transpile JSX to React.createElement
+      "moduleResolution": "bundler",
       "jsx": "react",
-      // interop between ESM and CJS modules. Recommended by TS
       "esModuleInterop": true,
-      // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
       "skipLibCheck": true,
-      // error out if import and file system have a casing mismatch. Recommended by TS
       "forceConsistentCasingInFileNames": true,
       "noEmit": true,
-      // Directory where typescript output declaration files
       "declarationDir": "./dist/types"
     }
   }
@@ -251,17 +239,6 @@ const esLintConfig = `
 }
 `;
 
-const babelConfig = `
-{
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-typescript"
-    ],
-    "plugins": [
-      "@babel/plugin-transform-class-properties"
-    ]
-}
-`;
 
 const lintStagedConfig = `
 module.exports = {
@@ -302,61 +279,37 @@ export const createProjectStructure = (path_: string) => {
     fs.mkdirSync(path_, { recursive: true });
   }
 
-  // TODO : CREATE THE .gitignore
   writeContent(path.join(path_, '.gitignore'), gitignore);
-
-  // TODO : CREATE THE tsconfig
   writeContent(path.join(path_, 'tsconfig.json'), tsconfig);
-
-  // TODO : CREATE THE README
   writeContent(path.join(path_, 'README.md'), readme);
-
-  // TODO : CREATE LICENSE
   writeContent(path.join(path_, 'LICENSE'), licence);
-
-  // TODO : ADD eslintrc configurations
   writeContent(path.join(path_, '.eslintrc.json'), esLintConfig);
-
-  // TODO : ADD eslintrc jest.config.js
   writeContent(path.join(path_, 'jest.config.js'), jestConfig);
 
-  // TODO : ADD .babelrc configurations
-  writeContent(path.join(path_, '.babelrc'), babelConfig);
-
-  // TODO : CREATE TEST FILES
   if (!fs.existsSync(path.join(path_, 'tests'))) {
     fs.mkdirSync(path.join(path_, 'tests'), { recursive: true });
   }
+
   writeContent(path.join(path_, 'tests', 'index.spec.ts'), test);
 
-  // TODO : CREATE SCRIPT FILES
   if (!fs.existsSync(path.join(path_, 'src'))) {
     fs.mkdirSync(path.join(path_, 'src'), { recursive: true });
   }
+
   writeContent(path.join(path_, 'src', 'index.ts'), defaultScript);
 
-  // TODO : CREATE GIT FLOW FILES
   if (!fs.existsSync(path.join(path_, '.github', 'workflows'))) {
     fs.mkdirSync(path.join(path_, '.github', 'workflows'), { recursive: true });
   }
-  writeContent(
-    path.join(path_, '.github', 'workflows', 'main.yml'),
-    gitflowMain
-  );
-  writeContent(
-    path.join(path_, '.github', 'workflows', 'size.yml'),
-    gitflowSize
-  );
+
+  writeContent(path.join(path_, '.github', 'workflows', 'main.yml'), gitflowMain);
+  writeContent(path.join(path_, '.github', 'workflows', 'size.yml'), gitflowSize);
 
   if (!fs.existsSync(path.join(path_, '.githooks'))) {
     fs.mkdirSync(path.join(path_, '.githooks'), { recursive: true });
   }
 
   writeContent(path.join(path_, '.githooks', 'pre-commit'), precommitHook);
-
-  // writeContent(path.join(path_, '.betterer.ts'), bettererConfig);
-
   writeContent(path.join(path_, 'lint-staged.config.js'), lintStagedConfig);
-
   writeContent(path.join(path_, '.npmrc'), npmrcConfigForTsBuild);
 };

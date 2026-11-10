@@ -6,22 +6,13 @@ const pkg = require("../../package.json");
 const prog = sade("ts-build");
 import fs from "fs-extra";
 import path from "path";
-import {
-  composePackageJson,
-  createProjectStructure,
-  template as TemplateConfig,
-} from "./tempates";
+import { composePackageJson, createProjectStructure, template as TemplateConfig } from "./tempates";
 import semver from "semver";
-import * as Messages from "./messages";
-import { logError } from "./logger";
+import { Messages } from "./messages";
+import { Logger } from "./logger";
 import child_process from "child_process";
 import TsBuild from "./builder";
-import getInstallArgs, {
-  createPackageName,
-  getAuthorName,
-  getInstallCmd,
-  getNodeEngineRequirement,
-} from "./helpers";
+import getInstallArgs, { createPackageName, getAuthorName, getInstallCmd, getNodeEngineRequirement } from "./helpers";
 import { readFileSync } from "jsonfile";
 import { appRoot, packageJson } from "./constants";
 import { createLinter, getErrorResultCount, outputfix } from "./lint";
@@ -105,7 +96,7 @@ prog
       await Messages.start(pkg);
     } catch (error) {
       Log(`Failed to create ${chalk.bold.red(pkg)}`);
-      logError(error);
+      Logger.logError(error);
       process.exit(1);
     }
     const { dependencies: deps } = TemplateConfig;
@@ -128,7 +119,7 @@ prog
       Log(await Messages.start(pkg));
     } catch (error) {
       Log("Failed to install dependencies");
-      logError(error);
+      Logger.logError(error);
       process.exit(1);
     }
   });

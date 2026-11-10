@@ -2,7 +2,7 @@ import { normalizeOpts, writeEntryFile } from "./helpers";
 import { appDist } from "./constants";
 import { createProgressEstimator } from "./progress-estimator";
 import { rollup } from "rollup";
-import { logError } from "./logger";
+import { Logger } from './logger';
 import { concatAllArray } from "./helpers";
 import { createRollupConfig } from "./rollup";
 import { BuildOptions, BuildOpts, NormalizedOpts } from "./types";
@@ -24,8 +24,6 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
     opts.input.map((input) =>
       createAllFormats(opts, input).map((options, index) => ({
         ...options,
-        // We want to know if this is the first run for each entryfile
-        // for certain plugins (e.g. css)
         writeMeta: index === 0,
       }))
     )
@@ -35,11 +33,6 @@ export async function createBuildConfigs(opts: NormalizedOpts) {
       const config = await createRollupConfig(
         options,
         index,
-        // We only copy typescrit declaration files if we are on the
-        // second iteration, and options.format includes esm module builds as `createAllFormats` 
-        // will generates builds for esm module
-        // This make sure that typescript files are emitted at least once before we attempt to copy
-        // its declaration files
         inputs.length > 1 && index === 1 && opts.format.includes('esm')
       );
       return configurations.rollup(config);
@@ -91,11 +84,7 @@ function createAllFormats(opts: NormalizedOpts, input: string) {
 
 export default class TsBuild {
   // Class constructor
-  constructor(
-    private options: BuildOpts,
-    private name: string,
-    private entry: string
-  ) {}
+  constructor(private options: BuildOpts, private name: string, private entry: string) { }
 
   /**
    * Compile Typescript files to Javascript
@@ -104,22 +93,20 @@ export default class TsBuild {
     const externalModules = this.options?.external ?? [];
     const buildOpts: BuildOpts = {
       ...this.options,
-      external:
-        typeof externalModules === "string"
-          ? externalModules.split(",")
-          : externalModules,
+      external: typeof externalModules === "string" ? externalModules.split(",") : externalModules,
     };
     const opts = await normalizeOpts(buildOpts, this.name, this.entry);
     const buildConfigs = await createBuildConfigs(opts);
-    // # TODO : Remove dist folder
+
     if (fs.existsSync(appDist)) {
       fs.rmSync(appDist, { force: true, recursive: true });
     }
-    // #endregion
+
     const logger = createProgressEstimator();
     if (opts.format.includes("cjs")) {
       logger(writeEntryFile(), "Creating entry file");
     }
+
     try {
       const promise = Promise.all(
         buildConfigs.map(async (options) => {
@@ -132,7 +119,7 @@ export default class TsBuild {
       logger(promise, "Building modules");
       await promise;
     } catch (error) {
-      logError(error);
+      Logger.logError(error);
       process.exit(1);
     }
   }

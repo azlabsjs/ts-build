@@ -13,8 +13,7 @@ export const template = {
     "jest-watch-typeahead",
     "@typescript-eslint/parser",
     "@typescript-eslint/eslint-plugin",
-    "prettier",
-    "@babel/runtime",
+    "prettier"
   ],
   packageJson: {
     version: "0.1.0",
